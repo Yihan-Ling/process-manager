@@ -5,7 +5,7 @@ logger = logging.getLogger("process_manager")
 logger.setLevel(logging.DEBUG)
 
 # Create a file handler to log to a file
-file_handler = logging.FileHandler("process_manager.log")
+file_handler = logging.FileHandler("./process_manager/log/process_manager.log")
 file_handler.setLevel(logging.DEBUG)
 
 # Create a console handler to log to the console
