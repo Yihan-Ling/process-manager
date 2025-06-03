@@ -12,3 +12,9 @@ from node import launch, watch
 #     launch('RAOCTg2.robot_controller'),
 #     launch('igmr_robotics_toolkit.node.speech'),
 # )
+
+watch(
+    launch('d_one'),
+    launch('d_two'),
+    launch('d_three')
+)
