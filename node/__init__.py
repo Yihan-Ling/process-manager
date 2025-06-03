@@ -5,8 +5,10 @@ import subprocess
 import signal
 from time import sleep
 
-import igmr_robotics_toolkit
-_log = igmr_robotics_toolkit.logger(__file__)
+from process_manager.log import logger
+_log = logger
+# import igmr_robotics_toolkit
+# _log = igmr_robotics_toolkit.logger(__file__)
 
 def launch(module: str, *cmd_args: Iterable[object], **cmd_kwargs: Mapping[str, object]) -> subprocess.Popen:
     return subprocess.Popen(
@@ -28,6 +30,7 @@ def _query_nodes(nodes: Iterable[subprocess.Popen]) -> Tuple[Iterable[subprocess
     return (active, failed)
 
 def watch(*nodes: Iterable[subprocess.Popen], period=2):
+    
     try:
         while True:
             sleep(period)
