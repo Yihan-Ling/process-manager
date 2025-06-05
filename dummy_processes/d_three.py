@@ -1,7 +1,10 @@
 from time import sleep
 
-def never_ends():
-    while True:
-        print("d_three running")
+var = 0
+while True:
+    # print("d_three running")
+    var+=1
+    sleep(1)
     
-    print("d_three exits")
+print("d_three exits")
+    

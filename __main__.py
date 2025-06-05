@@ -1,7 +1,7 @@
 from threading import Thread
 from process_manager.node import Watcher
 from process_manager.ui import Process_Manager_App
-from process_manager.log import logger
+from process_manager.log.logger import logger
 
 def start_processes(watcher):
     watcher.launch('process_manager.dummy_processes.d_one')
@@ -16,7 +16,7 @@ def run_watch():
 
 if __name__ == "__main__":
     watcher = Watcher()
-    logger.logger.info("Starting the process manager...")
+    logger.info("Starting the process manager...")
     start_processes(watcher)
     
     watch_thread = Thread(target=run_watch)

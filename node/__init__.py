@@ -4,8 +4,7 @@ import sys
 import subprocess
 import signal
 from time import time, sleep
-from process_manager.log import logger
-_log = logger
+from process_manager.log.logger import logger
 # import igmr_robotics_toolkit
 # _log = igmr_robotics_toolkit.logger(__file__)
 
@@ -59,12 +58,13 @@ class Watcher():
                 sleep(period)
 
                 (self.active, self.failed) = self._query_nodes()
-                if self.failed:
-                    _log.warning('initiating shutdown due to node failure')
+                # TODO: chnage this maybe
+                if len(self.failed)==3:
+                    logger.warning('initiating shutdown due to node failure')
                     break
 
         except KeyboardInterrupt:
-            _log.warning('initiating shutdown due to interrupt')
+            logger.warning('initiating shutdown due to interrupt')
 
         for n in self.active:
             if platform.system() == 'Windows':
@@ -79,4 +79,4 @@ class Watcher():
                 pass
 
         for n in self.failed:
-            _log.critical(f'node {n.args} failed')
+            logger.critical(f'node {n.args} failed')
