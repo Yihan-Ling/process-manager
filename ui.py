@@ -3,7 +3,7 @@ from process_manager.node import Watcher, Node
 import subprocess
 
 from textual.app import App, ComposeResult
-from textual.widgets import Header, ListView, ListItem, Static, Label
+from textual.widgets import Header, ListView, ListItem, Static, Label, DataTable, Log
 from textual.reactive import reactive
 from textual.containers import Horizontal, Vertical
 # from rich.text import Text
@@ -30,12 +30,17 @@ class Process_Manager_App(App):
         self.watcher = watcher
         self.detail_panel = Static("Select a process to see details.", expand=True)
         self.process_list_view = ListView(id="process_list")
+        self.detail_panel = Log(id="detail_panel")
+        self.stats = DataTable(id="table")
         self.selected_index = reactive(0)
         self.period = 2
     
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
         yield self.process_list_view
+        with Vertical(id= "right_panel"):
+            yield self.detail_panel
+            yield self.stats
         # yield Horizontal(
         #     self.process_list_view,
         #     # Vertical(, id="list", expand=True),
