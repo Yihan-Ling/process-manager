@@ -3,57 +3,80 @@ from typing import Iterable, Mapping, Tuple
 import sys
 import subprocess
 import signal
-from time import sleep
-
+from time import time, sleep
 from process_manager.log import logger
 _log = logger
 # import igmr_robotics_toolkit
 # _log = igmr_robotics_toolkit.logger(__file__)
 
-def launch(module: str, *cmd_args: Iterable[object], **cmd_kwargs: Mapping[str, object]) -> subprocess.Popen:
-    return subprocess.Popen(
-        [sys.executable, '-m', module] +
-        [str(o) for o in cmd_args] +
-        [f"--{k.replace('_', '-')}={v}" for (k, v) in cmd_kwargs.items()]
-    )
 
-def _query_nodes(nodes: Iterable[subprocess.Popen]) -> Tuple[Iterable[subprocess.Popen], Iterable[subprocess.Popen]]:
-    active = []
-    failed = []
-
-    for n in nodes:
-        if n.poll() is None:
-            active.append(n)
-        else:
-            failed.append(n)
-
-    return (active, failed)
-
-def watch(*nodes: Iterable[subprocess.Popen], period=2):
+class Node():
+    def __init__(self, name: str, popen: subprocess.Popen):
+        self.name = name
+        self.popen = popen
+        self.start_time = time()
+        self.last_output = ""
+        self.active = True
     
-    try:
-        while True:
-            sleep(period)
+    def is_alive(self) -> bool:
+        return self.active
 
-            (active, failed) = _query_nodes(nodes)
-            if failed:
-                _log.warning('initiating shutdown due to node failure')
-                break
+class Watcher():
+    def __init__(self):
+        self.active = []
+        self.failed = []
+        self.processes: list[Node] = []
+        
+    def launch(self, module: str, *cmd_args: Iterable[object], **cmd_kwargs: Mapping[str, object]) -> subprocess.Popen:
+        self.processes.append(
+            Node(name=module, 
+                         popen=
+                subprocess.Popen(
+                    [sys.executable, '-m', module] +
+                    [str(o) for o in cmd_args] +
+                    [f"--{k.replace('_', '-')}={v}" for (k, v) in cmd_kwargs.items()]
+                )   
+            )
+        )
 
-    except KeyboardInterrupt:
-        _log.warning('initiating shutdown due to interrupt')
+    def _query_nodes(self) -> Tuple[Iterable[subprocess.Popen], Iterable[subprocess.Popen]]:
+        active = []
+        failed = []
+        for n in self.processes:
+            if n.popen.poll() is None:
+                n.active = True
+                active.append(n.popen)
+            else:
+                n.active = False
+                failed.append(n.popen)
 
-    for n in active:
-        if platform.system() == 'Windows':
-            n.send_signal(signal.CTRL_C_EVENT)
-        else:
-            n.send_signal(signal.SIGINT)
+        return (active, failed)
 
-    for n in nodes:
+    def watch(self, period=2):
+        
         try:
-            n.wait()
-        except KeyboardInterrupt:
-            pass
+            while True:
+                sleep(period)
 
-    for n in failed:
-        _log.critical(f'node {n.args} failed')
+                (self.active, self.failed) = self._query_nodes()
+                if self.failed:
+                    _log.warning('initiating shutdown due to node failure')
+                    break
+
+        except KeyboardInterrupt:
+            _log.warning('initiating shutdown due to interrupt')
+
+        for n in self.active:
+            if platform.system() == 'Windows':
+                n.send_signal(signal.CTRL_C_EVENT)
+            else:
+                n.send_signal(signal.SIGINT)
+
+        for n in self.processes:
+            try:
+                n.popen.wait()
+            except KeyboardInterrupt:
+                pass
+
+        for n in self.failed:
+            _log.critical(f'node {n.args} failed')

@@ -1,24 +1,55 @@
-from textual.app import App, ComposeResult
-from textual.widgets import Header
 import time
-
+from process_manager.node import Watcher, Node
 import subprocess
 
-class Process_Info():
-    def __init__(self, name: str, popen: subprocess.Popen):
-        self.name = name
-        self.popen = popen
-        self.start_time = time.time()
-        self.last_output = ""
-        self.status = "Running"
+from textual.app import App, ComposeResult
+from textual.widgets import Header, ListView, ListItem, Static, Label
+from textual.reactive import reactive
+from textual.containers import Horizontal, Vertical
+# from rich.text import Text
 
+        
+class ProcessListItem(ListItem):
+    def __init__(self, node: Node):
+        self.node = node
+        # Just directly use a string label
+        super().__init__(Label(f"{node.name} {'🟢' if node.is_alive() else '🔴'}"))
+
+    # def render_text(self):
+    #     # Build a colored status circle
+    #     # print(self.node.name)
+    #     status_circle = "🟢" if self.node.is_alive() else "🔴"
+    #     return Text(f"{self.node.name} {status_circle}")
+    
 class Process_Manager_App(App):
-    def __init__(self, processes: list[Process_Info], **kwargs):
+    CSS_PATH = None
+    
+    def __init__(self, watcher: Watcher, **kwargs):
         super().__init__(**kwargs)
-        self.processes = processes
+        self.watcher = watcher
+        self.detail_panel = Static("Select a process to see details.", expand=True)
+        self.process_list_view = ListView()
+        self.selected_index = reactive(0)
+        self.period = 2
     
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
+        yield self.process_list_view
+        # yield Horizontal(
+        #     self.process_list_view,
+        #     # Vertical(, id="list", expand=True),
+        #     self.detail_panel,
+        # )
     
     def on_mount(self) -> None:
         self.title = "Process Manager"
+         # Populate the list
+        self.refresh_process_list()
+        # Update every 2 seconds
+        self.set_interval(self.period, self.refresh_process_list)
+        
+    def refresh_process_list(self):
+        self.process_list_view.clear()
+        for process in self.watcher.processes:
+            self.process_list_view.append(ProcessListItem(process))
+        # self.update_detail_panel(self.selected_index)

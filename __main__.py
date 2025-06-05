@@ -1,30 +1,28 @@
 from threading import Thread
-from process_manager.node import launch, watch
-from process_manager.ui import Process_Info, Process_Manager_App
+from process_manager.node import Watcher
+from process_manager.ui import Process_Manager_App
 from process_manager.log import logger
 
-def start_processes():
-    processes = [
-        Process_Info(name="Process 1", popen=launch('dummy_process.d_one')),
-        Process_Info(name="Process 2", popen=launch('dummy_process.d_two')),
-        Process_Info(name="Process 3", popen=launch('dummy_process.d_three'))
-    ]
-    return processes
+def start_processes(watcher):
+    watcher.launch('process_manager.dummy_processes.d_one')
+    watcher.launch('process_manager.dummy_processes.d_two')
+    watcher.launch('process_manager.dummy_processes.d_three')
 
-def run_watch(processes):
-    watch(
+def run_watch():
+    watcher.watch(
         # TODO: make period adjustable in UI
-        *[p.popen for p in processes], period=1
+        period=1
     )
 
 if __name__ == "__main__":
+    watcher = Watcher()
     logger.logger.info("Starting the process manager...")
-    processes = start_processes
+    start_processes(watcher)
     
     watch_thread = Thread(target=run_watch)
     watch_thread.daemon = True  # Allow this thread to exit when the main program exits
     watch_thread.start()
     
     # Start the UI thread (Textual app)
-    app = Process_Manager_App(processes=processes)
+    app = Process_Manager_App(watcher = watcher)
     app.run()
