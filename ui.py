@@ -13,22 +13,23 @@ class ProcessListItem(ListItem):
     def __init__(self, node: Node):
         self.node = node
         # Just directly use a string label
-        super().__init__(Label(f"{node.name} {'🟢' if node.is_alive() else '🔴'}"))
+        super().__init__(
+            Horizontal(
+                Label(node.name, id="node_name"),
+                Label("🟢" if node.is_alive() else "🔴", id="node_status"),
+                id="list_item"
+            )
+        )
 
-    # def render_text(self):
-    #     # Build a colored status circle
-    #     # print(self.node.name)
-    #     status_circle = "🟢" if self.node.is_alive() else "🔴"
-    #     return Text(f"{self.node.name} {status_circle}")
     
 class Process_Manager_App(App):
-    CSS_PATH = None
+    CSS_PATH = "manager.tcss"
     
     def __init__(self, watcher: Watcher, **kwargs):
         super().__init__(**kwargs)
         self.watcher = watcher
         self.detail_panel = Static("Select a process to see details.", expand=True)
-        self.process_list_view = ListView()
+        self.process_list_view = ListView(id="process_list")
         self.selected_index = reactive(0)
         self.period = 2
     
