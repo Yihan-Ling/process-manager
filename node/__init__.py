@@ -13,12 +13,13 @@ class Node():
     def __init__(self, name: str, popen: subprocess.Popen):
         self.name = name
         self.popen = popen
+        self.logs = []
         self.start_time = time()
         self.last_output = ""
         self.active = True
     
     def is_alive(self) -> bool:
-        return self.active
+        return self.popen.poll() is None
 
 class Watcher():
     def __init__(self):
@@ -29,11 +30,15 @@ class Watcher():
     def launch(self, module: str, *cmd_args: Iterable[object], **cmd_kwargs: Mapping[str, object]) -> subprocess.Popen:
         self.processes.append(
             Node(name=module, 
-                         popen=
+                popen=
                 subprocess.Popen(
                     [sys.executable, '-m', module] +
                     [str(o) for o in cmd_args] +
-                    [f"--{k.replace('_', '-')}={v}" for (k, v) in cmd_kwargs.items()]
+                    [f"--{k.replace('_', '-')}={v}" for (k, v) in cmd_kwargs.items()],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1
                 )   
             )
         )

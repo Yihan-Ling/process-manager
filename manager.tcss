@@ -18,3 +18,8 @@ ProcessListItem{
 #node_status{
     text-align: right;
 }
+
+#right_panel{
+    width: 60%;
+    height: 100%;
+}
