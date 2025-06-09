@@ -32,7 +32,7 @@ class Watcher():
             Node(name=module, 
                 popen=
                 subprocess.Popen(
-                    [sys.executable, '-m', module] +
+                    [sys.executable, '-u', '-m', module] +
                     [str(o) for o in cmd_args] +
                     [f"--{k.replace('_', '-')}={v}" for (k, v) in cmd_kwargs.items()],
                     stdout=subprocess.PIPE,

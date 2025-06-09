@@ -33,7 +33,7 @@ if __name__ == "__main__":
         Thread(target=_read_output, args=(node,), daemon=True).start()
     
     # When launching:
-    Thread(target=_read_output, args=(node,), daemon=True).start()
+    # Thread(target=_read_output, args=(node,), daemon=True).start()
     
     # Start the UI thread (Textual app)
     app = Process_Manager_App(watcher = watcher)
