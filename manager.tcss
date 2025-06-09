@@ -1,0 +1,25 @@
+ProcessListItem{
+    
+}
+
+#process_list{
+    width: 30%;
+}
+
+#list_item{
+    height: 1.5;
+}
+
+#node_name{
+    text-align: left;
+    width: 93%;
+}
+
+#node_status{
+    text-align: right;
+}
+
+#right_panel{
+    width: 60%;
+    height: 100%;
+}
