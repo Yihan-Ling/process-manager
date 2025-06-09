@@ -5,7 +5,7 @@ import subprocess
 from textual.app import App, ComposeResult
 from textual.widgets import Header, ListView, ListItem, Static, Label, DataTable, Log
 from textual.reactive import reactive
-from textual.events import ListViewSelected
+# from textual.events import ListViewSelected
 from textual.containers import Horizontal, Vertical
 # from rich.text import Text
 
