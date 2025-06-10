@@ -76,8 +76,7 @@ class Process_Manager_App(App):
     def refresh_selected_logs(self):
         if not self.current_node:
             return
-
-        # Only refresh if the log panel isn't already showing the latest
+        
         current_lines = self.detail_panel.lines
         new_lines = self.current_node.logs
 
