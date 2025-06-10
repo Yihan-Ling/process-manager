@@ -50,7 +50,14 @@ class Process_Manager_App(App):
         # Update every 2 seconds
         self.set_interval(self.period, self.refresh_process_list)
         self.detail_panel.write("Select a process to see detail")
+        self.stats.add_columns("Name", "Uptime", "Status")
+        for node in self.watcher.processes:
+            uptime = node.get_uptime()
+            status = "Running" if node.is_alive() else "Terminated"
+            self.stats.add_row(node.name, f"{uptime:.1f} s", status)
+            
         self.set_interval(1, self.refresh_selected_logs)
+        self.set_interval(1, self.refresh_stats)
         
     def refresh_process_list(self):
         self.process_list_view.clear()
@@ -79,4 +86,10 @@ class Process_Manager_App(App):
             for line in new_lines:
                 self.detail_panel.write_line(line)
                 
-                
+    def refresh_stats(self):
+        self.stats.clear()
+        for node in self.watcher.processes:
+            uptime = node.get_uptime()
+            uptime = f"{uptime:.1f} s"
+            status = "Running" if node.is_alive() else "Terminated"
+            self.stats.add_row(node.name, uptime, status)

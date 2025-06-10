@@ -15,11 +15,21 @@ class Node():
         self.popen = popen
         self.logs = []
         self.start_time = time()
+        self.end_time = None
         self.last_output = ""
         self.active = True
     
     def is_alive(self) -> bool:
         return self.popen.poll() is None
+    
+    def get_uptime(self) -> float:
+        if self.end_time:
+            return self.end_time - self.start_time
+        elif self.is_alive():
+            return time() - self.start_time
+        else:
+            self.end_time = time()
+            return self.end_time - self.start_time
 
 class Watcher():
     def __init__(self):
