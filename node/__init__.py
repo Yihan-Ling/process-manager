@@ -59,7 +59,8 @@ class Watcher():
         for n in self.processes:
             if n.popen.poll() is None:
                 n.active = True
-                active.append(n.popen)
+                # active.append(n.popen)
+                active.append(n)
             else:
                 n.active = False
                 failed.append(n.popen)
@@ -74,9 +75,10 @@ class Watcher():
 
                 (self.active, self.failed) = self._query_nodes()
                 # TODO: chnage this maybe
-                if len(self.failed)==3:
-                    logger.warning('initiating shutdown due to node failure')
-                    break
+                if len(self.failed)>=1:
+                    for failed_node in self.failed:
+                        logger.warning(f'Node {failed_node.name} has failed')
+                # break
 
         except KeyboardInterrupt:
             logger.warning('initiating shutdown due to interrupt')
