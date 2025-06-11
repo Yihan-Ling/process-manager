@@ -93,6 +93,7 @@ class Watcher():
         for line in node.popen.stdout:
             line = line.strip()
             node.logs.append(line)
+            self.terminal_prints.append(line)
             if len(node.logs) > 100:
                 node.logs.pop(0)
     
