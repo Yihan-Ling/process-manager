@@ -14,10 +14,10 @@ def run_watch():
         period=1
     )
     
-def _read_output(node: Node):
-    for line in node.popen.stdout:
-        node.logs.append(line.strip())
-
+# def read_output(watcher: Watcher):
+#     for node in watcher.processes:
+#         for line in node.popen.stdout:
+#             node.logs.append(line.strip())
 
 
 if __name__ == "__main__":
@@ -29,11 +29,10 @@ if __name__ == "__main__":
     watch_thread.daemon = True  # Allow this thread to exit when the main program exits
     watch_thread.start()
     
-    for node in watcher.processes:
-        Thread(target=_read_output, args=(node,), daemon=True).start()
-    
-    # When launching:
-    # Thread(target=_read_output, args=(node,), daemon=True).start()
+    # read_thread = Thread(target=read_output, args=(watcher,))
+    # read_thread.daemon = True
+    # read_thread.start()
+    # Thread(target=read_output, args=(watcher), daemon=True).start()
     
     # Start the UI thread (Textual app)
     app = Process_Manager_App(watcher = watcher)

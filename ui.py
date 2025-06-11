@@ -15,7 +15,7 @@ class ProcessListItem(ListItem):
         # Just directly use a string label
         super().__init__(
             Horizontal(
-                Label(node.name, id="node_name"),
+                Label(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', id="node_name"),
                 Label("🟢" if node.is_alive() else "🔴", id="node_status"),
                 id="list_item"
             )
@@ -54,7 +54,7 @@ class Process_Manager_App(App):
         for node in self.watcher.processes:
             uptime = node.get_uptime()
             status = "Running" if node.is_alive() else "Terminated"
-            self.stats.add_row(node.name, f"{uptime:.1f} s", status)
+            self.stats.add_row(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', f"{uptime:.1f} s", status)
             
         self.set_interval(1, self.refresh_selected_logs)
         self.set_interval(1, self.refresh_stats)
@@ -77,13 +77,13 @@ class Process_Manager_App(App):
         if not self.current_node:
             return
         
-        current_lines = self.detail_panel.lines
+        # current_lines = self.detail_panel.lines
         new_lines = self.current_node.logs
-
-        if len(current_lines) != len(new_lines):
-            self.detail_panel.clear()
-            for line in new_lines:
-                self.detail_panel.write_line(line)
+        self.detail_panel.clear()
+        for line in new_lines:
+            self.detail_panel.write_line(line)
+        # if len(current_lines) != len(new_lines):
+            
                 
     def refresh_stats(self):
         self.stats.clear()
@@ -91,4 +91,4 @@ class Process_Manager_App(App):
             uptime = node.get_uptime()
             uptime = f"{uptime:.1f} s"
             status = "Running" if node.is_alive() else "Terminated"
-            self.stats.add_row(node.name, uptime, status)
+            self.stats.add_row(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', uptime, status)
