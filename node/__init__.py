@@ -38,6 +38,7 @@ class Watcher():
         self.active = []
         self.failed = []
         self.processes: list[Node] = []
+        self.terminal_prints = []
         
     def launch(self, module: str, *cmd_args: Iterable[object], **cmd_kwargs: Mapping[str, object]) -> subprocess.Popen:
         arg = [sys.executable, '-u', '-m', module] + \
