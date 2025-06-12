@@ -3,7 +3,7 @@ from process_manager.node import Watcher, Node
 import subprocess
 
 from textual.app import App, ComposeResult
-from textual.widgets import Header, ListView, ListItem, Static, Label, DataTable, Log
+from textual.widgets import Header, ListView, ListItem, Label, DataTable, Log, Footer
 from textual.reactive import reactive
 from textual.containers import Horizontal, Vertical
 # from rich.text import Text
@@ -15,7 +15,7 @@ class ProcessListItem(ListItem):
         # Just directly use a string label
         super().__init__(
             Horizontal(
-                Label(node.name, id="node_name"),
+                Label(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', id="node_name"),
                 Label("🟢" if node.is_alive() else "🔴", id="node_status"),
                 id="list_item"
             )
@@ -24,6 +24,9 @@ class ProcessListItem(ListItem):
     
 class Process_Manager_App(App):
     CSS_PATH = "manager.tcss"
+    BINDINGS = [
+        ("a", "toggle_logs", "Toggle All/Selected Prints"),
+    ]
     
     def __init__(self, watcher: Watcher, **kwargs):
         super().__init__(**kwargs)
@@ -31,15 +34,20 @@ class Process_Manager_App(App):
         self.process_list_view = ListView(id="process_list")
         self.detail_panel = Log(id="detail_panel")
         self.stats = DataTable(id="table")
+        self.detail_label = Label("Select a process to see detail", id="detail_label")
         self.selected_index = reactive(0)
         self.period = 2
-        self.current_node = None 
+        self.current_node = None
+        self.show_all_logs = False
+ 
     
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
+        yield Footer()
         with Horizontal():
             yield self.process_list_view
             with Vertical(id= "right_panel"):
+                yield self.detail_label
                 yield self.detail_panel
                 yield self.stats
 
@@ -49,12 +57,12 @@ class Process_Manager_App(App):
         self.refresh_process_list()
         # Update every 2 seconds
         self.set_interval(self.period, self.refresh_process_list)
-        self.detail_panel.write("Select a process to see detail")
+        # self.detail_panel.write("Select a process to see detail")
         self.stats.add_columns("Name", "Uptime", "Status")
         for node in self.watcher.processes:
             uptime = node.get_uptime()
             status = "Running" if node.is_alive() else "Terminated"
-            self.stats.add_row(node.name, f"{uptime:.1f} s", status)
+            self.stats.add_row(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', f"{uptime:.1f} s", status)
             
         self.set_interval(1, self.refresh_selected_logs)
         self.set_interval(1, self.refresh_stats)
@@ -74,16 +82,17 @@ class Process_Manager_App(App):
             self.refresh_selected_logs()  # immediate refresh when selected
             
     def refresh_selected_logs(self):
-        if not self.current_node:
-            return
-        
-        current_lines = self.detail_panel.lines
-        new_lines = self.current_node.logs
-
-        if len(current_lines) != len(new_lines):
-            self.detail_panel.clear()
-            for line in new_lines:
+        self.detail_panel.clear()
+        if self.show_all_logs:
+            self.detail_label.update("Showing all terminal prints")
+            for line in self.watcher.terminal_prints:
                 self.detail_panel.write_line(line)
+        elif self.current_node:
+            self.detail_label.update("Showing selected terminal prints")
+            for line in self.current_node.logs:
+                self.detail_panel.write_line(line)
+        # else:
+        #     self.detail_panel.write("")  
                 
     def refresh_stats(self):
         self.stats.clear()
@@ -91,4 +100,9 @@ class Process_Manager_App(App):
             uptime = node.get_uptime()
             uptime = f"{uptime:.1f} s"
             status = "Running" if node.is_alive() else "Terminated"
-            self.stats.add_row(node.name, uptime, status)
+            self.stats.add_row(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', uptime, status)
+            
+    def action_toggle_logs(self) -> None:
+        self.show_all_logs = not self.show_all_logs
+        self.refresh_selected_logs()
+            
