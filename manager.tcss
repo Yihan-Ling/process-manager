@@ -25,7 +25,6 @@ ProcessListItem{
 }
 
 #detail_panel{
-    height: 60%;
     width: 100%;
     padding-bottom: -1;
 }
@@ -33,4 +32,13 @@ ProcessListItem{
 #table{
     height: 40%;
     width: 100%;
+}
+
+#detail_label{
+    height: 3;
+    align: center middle;
+    border: dashed green;
+    background: green 20%;
+    width: 100%;
+    content-align: center middle;
 }

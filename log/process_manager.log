@@ -305,3 +305,136 @@
 2025-06-11 16:16:18,332 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
 2025-06-11 16:16:23,340 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
 2025-06-11 16:16:23,340 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 13:53:16,033 - process_manager - INFO - Starting the process manager...
+2025-06-12 13:53:32,070 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 13:53:32,070 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 13:53:48,084 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 13:53:48,084 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 13:54:32,600 - process_manager - INFO - Starting the process manager...
+2025-06-12 13:54:51,090 - process_manager - INFO - Starting the process manager...
+2025-06-12 14:52:32,597 - process_manager - INFO - Starting the process manager...
+2025-06-12 14:52:45,630 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 14:52:45,630 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 14:52:48,636 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 14:52:48,636 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 14:53:03,220 - process_manager - INFO - Starting the process manager...
+2025-06-12 14:53:31,393 - process_manager - INFO - Starting the process manager...
+2025-06-12 14:53:32,413 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 14:53:32,413 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 14:57:44,653 - process_manager - INFO - Starting the process manager...
+2025-06-12 14:57:51,686 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 14:57:51,686 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 14:57:54,692 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 14:57:54,692 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 14:58:00,701 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 14:58:00,701 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 14:58:01,707 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 14:58:01,707 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 15:04:34,008 - process_manager - INFO - Starting the process manager...
+2025-06-12 15:04:50,032 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 15:04:50,032 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 15:06:43,688 - process_manager - INFO - Starting the process manager...
+2025-06-12 15:06:44,711 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 15:06:44,711 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 15:08:18,207 - process_manager - INFO - Starting the process manager...
+2025-06-12 15:08:34,280 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 15:08:34,280 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 15:08:50,292 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 15:08:50,292 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 15:08:51,299 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 15:08:51,300 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 15:16:56,956 - process_manager - INFO - Starting the process manager...
+2025-06-12 15:17:09,388 - process_manager - INFO - Starting the process manager...
+2025-06-12 15:33:19,020 - process_manager - INFO - Starting the process manager...
+2025-06-12 15:33:20,048 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 15:33:20,048 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 15:33:25,056 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 15:33:25,056 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 15:33:26,063 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 15:33:26,063 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 15:33:35,072 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 15:33:35,072 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 15:33:50,338 - process_manager - INFO - Starting the process manager...
+2025-06-12 15:33:53,372 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 15:33:53,372 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 15:33:54,378 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 15:33:54,378 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 15:34:03,386 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 15:34:03,386 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 15:34:06,394 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 15:34:06,394 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 15:48:46,330 - process_manager - INFO - Starting the process manager...
+2025-06-12 15:49:15,304 - process_manager - INFO - Starting the process manager...
+2025-06-12 15:49:32,690 - process_manager - INFO - Starting the process manager...
+2025-06-12 15:49:41,536 - process_manager - INFO - Starting the process manager...
+2025-06-12 16:00:20,850 - process_manager - INFO - Starting the process manager...
+2025-06-12 16:00:36,879 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:00:36,879 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:00:41,085 - process_manager - INFO - Starting the process manager...
+2025-06-12 16:00:42,119 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:00:42,133 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:00:51,159 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:00:51,159 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:00:56,168 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:00:56,168 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:00:56,176 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:00:56,176 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:01:05,192 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:01:05,192 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:01:06,198 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:01:06,198 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:01:12,210 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:01:12,210 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:01:24,826 - process_manager - INFO - Starting the process manager...
+2025-06-12 16:01:40,860 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:01:40,860 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:01:56,871 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:01:56,871 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:02:12,903 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:02:12,920 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:02:28,030 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:02:28,030 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:02:39,562 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:02:39,562 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:02:43,571 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:02:43,571 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:02:58,584 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:02:58,584 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:02:59,592 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:02:59,592 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:03:15,605 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:03:15,605 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:03:31,326 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:03:31,326 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:03:47,337 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:03:47,337 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:03:47,337 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:03:47,337 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:03:57,855 - process_manager - INFO - Starting the process manager...
+2025-06-12 16:18:42,121 - process_manager - INFO - Starting the process manager...
+2025-06-12 16:18:51,174 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:18:51,174 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:18:56,186 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:18:56,186 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:18:58,192 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:18:58,192 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:19:14,203 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:19:14,203 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:19:20,584 - process_manager - INFO - Starting the process manager...
+2025-06-12 16:19:23,608 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:19:23,608 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:19:36,619 - process_manager - WARNING - Node process_manager.dummy_processes.d_one has failed
+2025-06-12 16:19:36,619 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_one
+2025-06-12 16:19:38,635 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:19:38,635 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:19:47,663 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:19:47,663 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:19:50,998 - process_manager - INFO - Starting the process manager...
+2025-06-12 16:19:56,021 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:19:56,021 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:20:01,759 - process_manager - INFO - Starting the process manager...
+2025-06-12 16:20:02,785 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:20:02,785 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
+2025-06-12 16:20:15,208 - process_manager - INFO - Starting the process manager...
+2025-06-12 16:20:24,236 - process_manager - WARNING - Node process_manager.dummy_processes.d_two has failed
+2025-06-12 16:20:24,236 - process_manager - INFO - Relaunching node: process_manager.dummy_processes.d_two
