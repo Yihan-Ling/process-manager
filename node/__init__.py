@@ -96,6 +96,8 @@ class Watcher():
             self.terminal_prints.append(line)
             if len(node.logs) > 100:
                 node.logs.pop(0)
+            if len(self.terminal_prints) > 100:
+                self.terminal_prints.pop(0)
     
     def watch(self, period=1):
         
