@@ -30,7 +30,6 @@ class Node():
             return time() - self.start_time
         else:
             self.end_time = time()
-            # logger.warning(f'Node {self.name} shutdown')
             return self.end_time - self.start_time
 
 class Watcher():
@@ -80,11 +79,8 @@ class Watcher():
         failed = []
         for n in self.processes:
             if n.is_alive():
-                # n.active = True
-                # active.append(n.popen)
                 active.append(n)
             else:
-                # n.active = False
                 failed.append(n)
 
         return (active, failed)
@@ -104,7 +100,6 @@ class Watcher():
         try:
             while True:
                 sleep(period)
-                # self._query_nodes()
                 (self.active, self.failed) = self._query_nodes()
                 # TODO: chnage this maybe
                 if len(self.failed)>=1:

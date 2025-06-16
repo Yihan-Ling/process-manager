@@ -1,18 +1,14 @@
-import time
 from process_manager.node import Watcher, Node
-import subprocess
 
 from textual.app import App, ComposeResult
 from textual.widgets import Header, ListView, ListItem, Label, DataTable, Log, Footer
 from textual.reactive import reactive
 from textual.containers import Horizontal, Vertical
-# from rich.text import Text
 
-        
+
 class ProcessListItem(ListItem):
     def __init__(self, node: Node):
         self.node = node
-        # Just directly use a string label
         super().__init__(
             Horizontal(
                 Label(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', id="node_name"),
@@ -36,7 +32,7 @@ class Process_Manager_App(App):
         self.stats = DataTable(id="table")
         self.detail_label = Label("Select a process to see detail", id="detail_label")
         self.selected_index = reactive(0)
-        self.period = 2
+        self.period = 1
         self.current_node = None
         self.show_all_logs = False
  
@@ -53,33 +49,28 @@ class Process_Manager_App(App):
 
     def on_mount(self) -> None:
         self.title = "Process Manager"
-         # Populate the list
         self.refresh_process_list()
-        # Update every 2 seconds
         self.set_interval(self.period, self.refresh_process_list)
-        # self.detail_panel.write("Select a process to see detail")
         self.stats.add_columns("Name", "Uptime", "Status")
         for node in self.watcher.processes:
             uptime = node.get_uptime()
             status = "Running" if node.is_alive() else "Terminated"
             self.stats.add_row(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', f"{uptime:.1f} s", status)
             
-        self.set_interval(1, self.refresh_selected_logs)
-        self.set_interval(1, self.refresh_stats)
+        self.set_interval(self.period, self.refresh_selected_logs)
+        self.set_interval(self.period, self.refresh_stats)
         
     def refresh_process_list(self):
         self.process_list_view.clear()
         for process in self.watcher.processes:
             self.process_list_view.append(ProcessListItem(process))
-        # self.update_detail_panel(self.selected_index)
-        
 
     async def on_list_view_selected(self, message: ListView.Selected) -> None:
         item = message.item
         if isinstance(item, ProcessListItem):
             node: Node = item.node
             self.current_node = node
-            self.refresh_selected_logs()  # immediate refresh when selected
+            self.refresh_selected_logs() 
             
     def refresh_selected_logs(self):
         self.detail_panel.clear()
@@ -91,8 +82,6 @@ class Process_Manager_App(App):
             self.detail_label.update("Showing selected terminal prints")
             for line in self.current_node.logs:
                 self.detail_panel.write_line(line)
-        # else:
-        #     self.detail_panel.write("")  
                 
     def refresh_stats(self):
         self.stats.clear()
