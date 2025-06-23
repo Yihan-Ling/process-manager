@@ -4,10 +4,15 @@ import sys
 import subprocess
 import signal
 from time import time, sleep
-from process_manager.log.logger import logger
+# from process_manager.log.logger import logger
 from threading import Thread
 # import igmr_robotics_toolkit
 # _log = igmr_robotics_toolkit.logger(__file__)
+
+from process_manager.log import logger
+from process_manager.util import auto_default_logging
+
+_log = logger(__file__)
 
 
 class Node():
@@ -60,7 +65,7 @@ class Watcher():
 
 
     def relaunch_node(self, failed_node: Node) -> Node:
-        logger.info(f"Relaunching node: {failed_node.name}")
+        _log.info(f"Relaunching node: {failed_node.name}")
         new_popen = subprocess.Popen(
             failed_node.cmd_args,
             stdout=subprocess.PIPE,
@@ -104,13 +109,13 @@ class Watcher():
                 # TODO: chnage this maybe
                 if len(self.failed)>=1:
                     for failed_node in self.failed:
-                        logger.warning(f'Node {failed_node.name} has failed')
+                        _log.warning(f'Node {failed_node.name} has failed')
                         self.relaunch_node(failed_node)
 
                     # break
 
         except KeyboardInterrupt:
-            logger.warning('initiating shutdown due to interrupt')
+            _log.warning('initiating shutdown due to interrupt')
 
         for n in self.active:
             if platform.system() == 'Windows':
@@ -125,4 +130,4 @@ class Watcher():
                 pass
 
         for n in self.failed:
-            logger.critical(f'node {n.args} failed')
+            _log.critical(f'node {n.args} failed')
