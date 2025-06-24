@@ -4,6 +4,11 @@ from process_manager.util import auto_default_logging
 import logging
 
 _log = logger(__file__)
+
+handler = logging.handlers.SocketHandler('localhost', 9020)
+handler.setLevel(logging.DEBUG)
+_log.addHandler(handler)
+
 var = 0
 while  var<15:
     _log.info(var)
