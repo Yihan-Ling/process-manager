@@ -61,7 +61,7 @@ class Watcher():
         )
         self.processes.append(node)
         
-        Thread(target=self._read_node_output, args=(node,), daemon=True).start()
+        # Thread(target=self._read_node_output, args=(node,), daemon=True).start()
 
 
     def relaunch_node(self, failed_node: Node) -> Node:
@@ -77,7 +77,7 @@ class Watcher():
         new_node.launched_times = failed_node.launched_times + 1
         self.processes.remove(failed_node)
         self.processes.append(new_node)
-        Thread(target=self._read_node_output, args=(new_node,), daemon=True).start()
+        # Thread(target=self._read_node_output, args=(new_node,), daemon=True).start()
 
     def _query_nodes(self) -> Tuple[Iterable[subprocess.Popen], Iterable[subprocess.Popen]]:
         active = []
@@ -90,15 +90,15 @@ class Watcher():
 
         return (active, failed)
 
-    def _read_node_output(self, node: Node):
-        for line in node.popen.stdout:
-            line = line.strip()
-            node.logs.append(line)
-            self.terminal_prints.append(line)
-            if len(node.logs) > 100:
-                node.logs.pop(0)
-            if len(self.terminal_prints) > 100:
-                self.terminal_prints.pop(0)
+    # def _read_node_output(self, node: Node):
+    #     for line in node.popen.stdout:
+    #         line = line.strip()
+    #         node.logs.append(line)
+    #         self.terminal_prints.append(line)
+    #         if len(node.logs) > 100:
+    #             node.logs.pop(0)
+    #         if len(self.terminal_prints) > 100:
+    #             self.terminal_prints.pop(0)
     
     def watch(self, period=1):
         
@@ -131,3 +131,13 @@ class Watcher():
 
         for n in self.failed:
             _log.critical(f'node {n.args} failed')
+            
+    def stop_all(self):
+        print("1")
+        for node in self.processes:
+            if node.is_alive():
+                try:
+                    node.popen.terminate()
+                    node.popen.wait(timeout=5)
+                except Exception as e:
+                    print(f"Failed to terminate {node.name}: {e}")

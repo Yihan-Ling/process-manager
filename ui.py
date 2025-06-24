@@ -4,6 +4,10 @@ from textual.app import App, ComposeResult
 from textual.widgets import Header, ListView, ListItem, Label, DataTable, Log, Footer
 from textual.reactive import reactive
 from textual.containers import Horizontal, Vertical
+from process_manager.log import logger
+from process_manager.util import auto_default_logging
+
+_log = logger(__file__)
 
 
 class ProcessListItem(ListItem):
@@ -24,7 +28,7 @@ class Process_Manager_App(App):
         ("a", "toggle_logs", "Toggle All/Selected Prints"),
     ]
     
-    def __init__(self, watcher: Watcher, **kwargs):
+    def __init__(self, watcher: Watcher, log_server, **kwargs):
         super().__init__(**kwargs)
         self.watcher = watcher
         self.process_list_view = ListView(id="process_list")
@@ -35,6 +39,7 @@ class Process_Manager_App(App):
         self.period = 1
         self.current_node = None
         self.show_all_logs = False
+        self.log_server = log_server
  
     
     def compose(self) -> ComposeResult:
@@ -57,7 +62,7 @@ class Process_Manager_App(App):
             status = "Running" if node.is_alive() else "Terminated"
             self.stats.add_row(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', f"{uptime:.1f} s", status)
             
-        self.set_interval(self.period, self.refresh_selected_logs)
+        self.set_interval(self.period, lambda: self.call_later(self.refresh_selected_logs))
         self.set_interval(self.period, self.refresh_stats)
         
     def refresh_process_list(self):
@@ -76,7 +81,7 @@ class Process_Manager_App(App):
         self.detail_panel.clear()
         if self.show_all_logs:
             self.detail_label.update("Showing all terminal prints")
-            for line in self.watcher.terminal_prints:
+            for line in self.watcher.logs:
                 self.detail_panel.write_line(line)
         elif self.current_node:
             self.detail_label.update("Showing selected terminal prints")
@@ -94,4 +99,16 @@ class Process_Manager_App(App):
     def action_toggle_logs(self) -> None:
         self.show_all_logs = not self.show_all_logs
         self.refresh_selected_logs()
+        
+    def exit(self) -> None:
+        _log.info("Shutting down UI: stopping processes and log server...")
+
+        # Stop the watcher and terminate subprocesses
+        self.watcher.stop_all()
+
+        # Stop the log server
+        if hasattr(self, "log_server"):
+            self.log_server.shutdown()
+            self.log_server.server_close()
+        App.exit(self)
             

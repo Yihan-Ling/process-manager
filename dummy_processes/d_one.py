@@ -1,7 +1,7 @@
 from time import sleep
 from process_manager.log import logger
 from process_manager.util import auto_default_logging
-import logging
+import logging.handlers
 
 _log = logger(__file__)
 

@@ -3,27 +3,53 @@ import socketserver
 import pickle
 import struct
 from threading import Thread
+from process_manager.node import Watcher
 
-class LogRecordStreamHandler(socketserver.StreamRequestHandler):
-    def handle(self):
-        while True:
-            chunk = self.connection.recv(4)
-            if len(chunk) < 4:
-                break
-            slen = struct.unpack('>L', chunk)[0]
-            data = self.connection.recv(slen)
-            while len(data) < slen:
-                data += self.connection.recv(slen - len(data))
-            record = pickle.loads(data)
-            logger = logging.getLogger(record.name)
-            logger.handle(record)
 
-class LogRecordSocketReceiver(socketserver.ThreadingTCPServer):
-    allow_reuse_address = True
-    def __init__(self, host='localhost', port=9020):
-        super().__init__((host, port), LogRecordStreamHandler)
+def start_log_server(watcher: Watcher):
+    class LogRecordStreamHandler(socketserver.StreamRequestHandler):
+        def handle(self):
+            while True:
+                chunk = self.connection.recv(4)
+                if len(chunk) < 4:
+                    break
+                slen = struct.unpack('>L', chunk)[0]
+                data = self.connection.recv(slen)
+                while len(data) < slen:
+                    data += self.connection.recv(slen - len(data))
 
-def start_log_server():
+                # Deserialize the LogRecord
+                record = pickle.loads(data)
+                record = logging.makeLogRecord(record)
+                # print(record)
+                # print(f"Received log record: {record.name} - {record.getMessage()}")
+                # Format the message
+                msg = f"{record.name} {record.levelname}: {record.getMessage()}"
+
+                # ✅ Add to global watcher log buffer
+                watcher.logs.append(msg)
+                if len(watcher.logs) > 100:
+                    watcher.logs.pop(0)
+
+                # ✅ Add to matching node's logs
+                for node in watcher.processes:
+                    if record.name == node.name or node.name.endswith(record.name) or record.name.endswith(node.name):
+                        node.logs.append(msg)
+                        if len(node.logs) > 100:
+                            node.logs.pop(0)
+                        break
+
+                # # Optional: Dispatch to main process's logger system (e.g., if you want colored console output too)
+                # logger = logging.getLogger(record.name)
+                # logger.handle(record)
+                
+                
+
+    class LogRecordSocketReceiver(socketserver.ThreadingTCPServer):
+        allow_reuse_address = True
+        def __init__(self, host='localhost', port=9020):
+            super().__init__((host, port), LogRecordStreamHandler)
+
     server = LogRecordSocketReceiver()
     thread = Thread(target=server.serve_forever, daemon=True)
     thread.start()
