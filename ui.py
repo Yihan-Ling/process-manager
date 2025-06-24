@@ -110,5 +110,5 @@ class Process_Manager_App(App):
         if hasattr(self, "log_server"):
             self.log_server.shutdown()
             self.log_server.server_close()
-        App.exit(self)
+        super().exit()
             
