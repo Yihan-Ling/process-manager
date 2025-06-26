@@ -24,6 +24,7 @@ class Node():
         self.start_time = time()
         self.end_time = None
         self.launched_times = 0
+        self.relaunched = False
     
     def is_alive(self) -> bool:
         return self.popen.poll() is None
@@ -43,6 +44,7 @@ class Watcher():
         self.failed = []
         self.processes: list[Node] = []
         self.logs = []
+        self.stopAll = False
         
     def launch(self, module: str, *cmd_args: Iterable[object], **cmd_kwargs: Mapping[str, object]) -> subprocess.Popen:
         arg = [sys.executable, '-u', '-m', module] + \
@@ -75,7 +77,7 @@ class Watcher():
         )
         new_node = Node(name=f'{failed_node.name}', popen=new_popen, cmd_args=failed_node.cmd_args)
         new_node.launched_times = failed_node.launched_times + 1
-        self.processes.remove(failed_node)
+        # self.processes.remove(failed_node)
         self.processes.append(new_node)
         # Thread(target=self._read_node_output, args=(new_node,), daemon=True).start()
 
@@ -85,7 +87,7 @@ class Watcher():
         for n in self.processes:
             if n.is_alive():
                 active.append(n)
-            else:
+            elif not n.relaunched:
                 failed.append(n)
 
         return (active, failed)
@@ -104,12 +106,15 @@ class Watcher():
         
         try:
             while True:
+                if self.stopAll:
+                    break
                 sleep(period)
                 (self.active, self.failed) = self._query_nodes()
                 # TODO: chnage this maybe
                 if len(self.failed)>=1:
                     for failed_node in self.failed:
                         _log.warning(f'Node {failed_node.name} has failed')
+                        failed_node.relaunched = True
                         self.relaunch_node(failed_node)
 
                     # break
@@ -134,6 +139,7 @@ class Watcher():
             
     def stop_all(self):
         print("1")
+        self.stopAll = True 
         for node in self.processes:
             if node.is_alive():
                 try:

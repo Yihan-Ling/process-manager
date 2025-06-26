@@ -5,7 +5,11 @@ from textual.widgets import Header, ListView, ListItem, Label, DataTable, Log, F
 from textual.reactive import reactive
 from textual.containers import Horizontal, Vertical
 from process_manager.log import logger
+from textual.message import Message
 from process_manager.util import auto_default_logging
+
+from time import sleep
+import sys
 
 _log = logger(__file__)
 
@@ -110,5 +114,6 @@ class Process_Manager_App(App):
         if hasattr(self, "log_server"):
             self.log_server.shutdown()
             self.log_server.server_close()
-        super().exit()
-            
+        super().exit() 
+        # sys.exit()
+    

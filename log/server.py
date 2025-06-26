@@ -33,7 +33,9 @@ def start_log_server(watcher: Watcher):
 
                 # ✅ Add to matching node's logs
                 for node in watcher.processes:
-                    if record.name == node.name or node.name.endswith(record.name) or record.name.endswith(node.name):
+                    if node.relaunched:
+                        continue
+                    if record.name in node.name or node.name in record.name:
                         node.logs.append(msg)
                         if len(node.logs) > 100:
                             node.logs.pop(0)
