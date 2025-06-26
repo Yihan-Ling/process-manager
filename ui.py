@@ -79,10 +79,13 @@ class Process_Manager_App(App):
         self.set_interval(self.period, self.refresh_process_list)
         self.stats.add_columns("Name", "Uptime", "Status", "Log Level")
         self.stats.zebra_stripes = True
+        self.stats.cursor_type = "row"
+        
         for node in self.watcher.processes:
             uptime = node.get_uptime()
             status = "Running" if node.is_alive() else "Terminated"
-            self.stats.add_row(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', f"{uptime:.1f} s", status)
+            log_level = node.log_severity
+            self.stats.add_row(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', f"{uptime:.1f} s", status, log_level)
             
         self.set_interval(self.period, lambda: self.call_later(self.refresh_selected_logs))
         self.set_interval(self.period, self.refresh_stats)
@@ -123,17 +126,40 @@ class Process_Manager_App(App):
     #                            log_level)
             
     def refresh_stats(self):
+        # Save current cursor position
+        # cursor = self.stats.cursor_coordinate
+        # scroll = self.stats.scroll_offset
+
         self.stats.clear()
+
         for node in self.watcher.processes:
-            uptime = node.get_uptime()
-            uptime = f"{uptime:.1f} s"
+            key = node.name if node.launched_times == 0 else f'{node.name} ({node.launched_times})'
+            uptime = f"{node.get_uptime():.1f} s"
             status = "Running" if node.is_alive() else "Terminated"
             log_level = node.log_severity
-            self.stats.add_row(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})',
-                               uptime, 
-                               status, 
-                               log_level)
-            
+
+            self.stats.add_row(key, uptime, status, log_level, key=key)
+
+        # Restore scroll and cursor position
+        # self.stats.scroll_to_coordinate(scroll)
+        # self.stats.cursor_coordinate = cursor
+        self.stats.action_scroll_bottom()
+        
+    # def refresh_stats(self):
+    #     for node in self.watcher.processes:
+    #         key = node.name if node.launched_times == 0 else f'{node.name} ({node.launched_times})'
+    #         uptime = f"{node.get_uptime():.1f} s"
+    #         status = "Running" if node.is_alive() else "Terminated"
+    #         log_level = node.log_severity
+
+    #         # Add the row only if it doesn't exist yet
+    #         if not self.stats.row_exists(key):
+    #             self.stats.add_row(key, uptime, status, log_level, key=key)
+    #         else:
+    #             # Update individual cells using row key + column index
+    #             self.stats.update_cell(key, 1, uptime)      # Column 1: Uptime
+    #             self.stats.update_cell(key, 2, status)      # Column 2: Status
+    #             self.stats.update_cell(key, 3, log_level)   # Column 3: Log Level
             
             
     def action_toggle_logs(self) -> None:
