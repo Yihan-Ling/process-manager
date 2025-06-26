@@ -25,6 +25,7 @@ class Node():
         self.end_time = None
         self.launched_times = 0
         self.relaunched = False
+        self.log_severity = "DEBUG"
     
     def is_alive(self) -> bool:
         return self.popen.poll() is None
@@ -37,6 +38,20 @@ class Node():
         else:
             self.end_time = time()
             return self.end_time - self.start_time
+        
+    def update_severity(self, level: str):
+        severity_order = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+        if severity_order.index(level) > severity_order.index(self.log_severity):
+            self.log_severity = level
+            
+    def get_severity_color(self) -> str:
+        return {
+            "DEBUG": "white",
+            "INFO": "green",
+            "WARNING": "yellow",
+            "ERROR": "orange",
+            "CRITICAL": "red",
+        }.get(self.log_severity, "white")
 
 class Watcher():
     def __init__(self):

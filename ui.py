@@ -1,14 +1,13 @@
 from process_manager.node import Watcher, Node
 
 from textual.app import App, ComposeResult
-from textual.widgets import Header, ListView, ListItem, Label, DataTable, Log, Footer
+from textual.widgets import Header, ListView, ListItem, Label, DataTable, Log, Footer, Static
 from textual.reactive import reactive
 from textual.containers import Horizontal, Vertical
 from process_manager.log import logger
-from textual.message import Message
 from process_manager.util import auto_default_logging
 
-from time import sleep
+# from time import sleep
 import sys
 
 _log = logger(__file__)
@@ -17,10 +16,15 @@ _log = logger(__file__)
 class ProcessListItem(ListItem):
     def __init__(self, node: Node):
         self.node = node
+        color = node.get_severity_color()
+        severity_dot = Label("●", id="node_status")
+        severity_dot.styles.color = color
+        
         super().__init__(
             Horizontal(
                 Label(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', id="node_name"),
-                Label("🟢" if node.is_alive() else "🔴", id="node_status"),
+                # Label("🟢" if node.is_alive() else "🔴", id="node_status"),
+                severity_dot,
                 id="list_item"
             )
         )
@@ -44,6 +48,19 @@ class Process_Manager_App(App):
         self.current_node = None
         self.show_all_logs = False
         self.log_server = log_server
+    
+    def exit(self) -> None:
+        _log.info("Shutting down UI: stopping processes and log server...")
+
+        # Stop the watcher and terminate subprocesses
+        self.watcher.stop_all()
+
+        # Stop the log server
+        if hasattr(self, "log_server"):
+            self.log_server.shutdown()
+            self.log_server.server_close()
+        # super().exit() 
+        sys.exit()
  
     
     def compose(self) -> ComposeResult:
@@ -60,7 +77,7 @@ class Process_Manager_App(App):
         self.title = "Process Manager"
         self.refresh_process_list()
         self.set_interval(self.period, self.refresh_process_list)
-        self.stats.add_columns("Name", "Uptime", "Status")
+        self.stats.add_columns("Name", "Uptime", "Status", "Log Level")
         for node in self.watcher.processes:
             uptime = node.get_uptime()
             status = "Running" if node.is_alive() else "Terminated"
@@ -98,22 +115,13 @@ class Process_Manager_App(App):
             uptime = node.get_uptime()
             uptime = f"{uptime:.1f} s"
             status = "Running" if node.is_alive() else "Terminated"
-            self.stats.add_row(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', uptime, status)
+            log_level = node.log_severity
+            self.stats.add_row(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})',
+                               uptime, 
+                               status, 
+                               log_level)
             
     def action_toggle_logs(self) -> None:
         self.show_all_logs = not self.show_all_logs
         self.refresh_selected_logs()
-        
-    def exit(self) -> None:
-        _log.info("Shutting down UI: stopping processes and log server...")
-
-        # Stop the watcher and terminate subprocesses
-        self.watcher.stop_all()
-
-        # Stop the log server
-        if hasattr(self, "log_server"):
-            self.log_server.shutdown()
-            self.log_server.server_close()
-        super().exit() 
-        # sys.exit()
     

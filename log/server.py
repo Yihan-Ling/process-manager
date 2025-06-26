@@ -39,6 +39,7 @@ def start_log_server(watcher: Watcher):
                         node.logs.append(msg)
                         if len(node.logs) > 100:
                             node.logs.pop(0)
+                        node.update_severity(record.levelname)
                         break
 
                 # # Optional: Dispatch to main process's logger system (e.g., if you want colored console output too)
