@@ -137,23 +137,22 @@ class Watcher():
         except KeyboardInterrupt:
             _log.warning('initiating shutdown due to interrupt')
 
-        for n in self.active:
-            if platform.system() == 'Windows':
-                n.send_signal(signal.CTRL_C_EVENT)
-            else:
-                n.send_signal(signal.SIGINT)
+        # for n in self.active:
+        #     if platform.system() == 'Windows':
+        #         n.send_signal(signal.CTRL_C_EVENT)
+        #     else:
+        #         n.send_signal(signal.SIGINT)
 
-        for n in self.processes:
-            try:
-                n.popen.wait()
-            except KeyboardInterrupt:
-                pass
+        # for n in self.processes:
+        #     try:
+        #         n.popen.wait()
+        #     except KeyboardInterrupt:
+        #         pass
 
-        for n in self.failed:
-            _log.critical(f'node {n.args} failed')
+        # for n in self.failed:
+        #     _log.critical(f'node {n.args} failed')
             
     def stop_all(self):
-        print("1")
         self.stopAll = True 
         for node in self.processes:
             if node.is_alive():

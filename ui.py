@@ -78,6 +78,7 @@ class Process_Manager_App(App):
         self.refresh_process_list()
         self.set_interval(self.period, self.refresh_process_list)
         self.stats.add_columns("Name", "Uptime", "Status", "Log Level")
+        self.stats.zebra_stripes = True
         for node in self.watcher.processes:
             uptime = node.get_uptime()
             status = "Running" if node.is_alive() else "Terminated"
@@ -109,6 +110,18 @@ class Process_Manager_App(App):
             for line in self.current_node.logs:
                 self.detail_panel.write_line(line)
                 
+    # def refresh_stats(self):
+    #     self.stats.clear()
+    #     for node in self.watcher.processes:
+    #         uptime = node.get_uptime()
+    #         uptime = f"{uptime:.1f} s"
+    #         status = "Running" if node.is_alive() else "Terminated"
+    #         log_level = node.log_severity
+    #         self.stats.add_row(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})',
+    #                            uptime, 
+    #                            status, 
+    #                            log_level)
+            
     def refresh_stats(self):
         self.stats.clear()
         for node in self.watcher.processes:
@@ -120,6 +133,8 @@ class Process_Manager_App(App):
                                uptime, 
                                status, 
                                log_level)
+            
+            
             
     def action_toggle_logs(self) -> None:
         self.show_all_logs = not self.show_all_logs

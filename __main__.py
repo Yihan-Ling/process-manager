@@ -4,6 +4,7 @@ from process_manager.ui import Process_Manager_App
 from process_manager.log import logger
 from process_manager.util import auto_default_logging
 from process_manager.log.server import start_log_server
+import sys
 
 
 _log = logger(__file__)
