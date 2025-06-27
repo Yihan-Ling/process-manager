@@ -15,5 +15,5 @@ while True:
     var+=1
     sleep(1)
     
-print("d_three exits")
+_log.critical("d_three exits")
     

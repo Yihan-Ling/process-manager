@@ -1,10 +1,9 @@
 from threading import Thread
-from process_manager.node import Watcher, Node
+from process_manager.node import Watcher
 from process_manager.ui import Process_Manager_App
 from process_manager.log import logger
 from process_manager.util import auto_default_logging
 from process_manager.log.server import start_log_server
-import sys
 
 
 _log = logger(__file__)
@@ -29,9 +28,9 @@ if __name__ == "__main__":
     log_server = start_log_server(watcher)
     
     watch_thread = Thread(target=run_watch)
-    watch_thread.daemon = True  # Allow this thread to exit when the main program exits
+    watch_thread.daemon = True 
     watch_thread.start()
     
     app = Process_Manager_App(watcher=watcher, log_server=log_server)
-    app.log_server = log_server  # attach for shutdown access
+    app.log_server = log_server 
     app.run()

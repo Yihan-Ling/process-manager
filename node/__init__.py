@@ -1,19 +1,13 @@
-import platform
 from typing import Iterable, Mapping, Tuple
 import sys
 import subprocess
-import signal
 from time import time, sleep
-# from process_manager.log.logger import logger
 from threading import Thread
-# import igmr_robotics_toolkit
-# _log = igmr_robotics_toolkit.logger(__file__)
 
 from process_manager.log import logger
 from process_manager.util import auto_default_logging
 
 _log = logger(__file__)
-
 
 class Node():
     def __init__(self, name: str, popen: subprocess.Popen, cmd_args: list[str]):
@@ -25,7 +19,7 @@ class Node():
         self.end_time = None
         self.launched_times = 0
         self.relaunched = False
-        self.log_severity = "DEBUG"
+        self.log_severity = "DEBUG" # Default to start at DEBUG
     
     def is_alive(self) -> bool:
         return self.popen.poll() is None
@@ -51,7 +45,7 @@ class Node():
             "WARNING": "yellow",
             "ERROR": "orange",
             "CRITICAL": "red",
-        }.get(self.log_severity, "white")
+        }.get(self.log_severity, "gray")
 
 class Watcher():
     def __init__(self):
