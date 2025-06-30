@@ -1,0 +1,263 @@
+robot:
+  # host: rob-igmri-legato
+  # control_frequency: 125
+
+  host: 10.162.76.28
+  model: LBRmed7
+  control_frequency: 100
+  simulate: false
+
+  motion_log: /tmp/motion
+
+  topic: robot_state
+
+  joint_limits_deg:
+  - [-150d, -10d]
+  - [-225d, 0d]
+  - [-155d, -20d]
+  - [-6.28, 6.28]
+  - [-6.28, 6.28]
+  - [-6.28, 6.28]
+
+  force_limit: 20
+
+  payload: 4.19
+  center_of_mass: [-7.59e-3, 0.6e-3, 38.e-3]
+
+  # tcp: rot(0, 0, 90d) trans(0, 63.55e-3, 247.24e-3)
+  # tcp : rot(0, 0, 90d) trans(0, 63.55e-3, 150.24e-3)
+  tcp: trans(-64.24e-3, -0.4e-3, 252.67e-3) rot(0, 0, 90d)
+
+  up: trans(0, 0, 1)
+
+  face_align: rot(0, -10d, 0) rot(180d, 0, -90d) trans(-0.0, -0, -0.005)
+  # face_orientation_override: rot(90d, 0, 180d)
+
+  pupil_align: rot(0d, 0d, 0d) trans(0, 0.00, -0.001)
+  # pupil_orientation_override: rot(0, 0, 90d) rot(0, 180d, 0)
+  pupil_axis_from_face: false
+
+  pupil_position_gain: 0.7
+  pupil_rotation_gain: 0.2
+
+  tool: null
+  # tool:
+  #   Scanner:
+  #     # display: data/AnteriorScannerMounted-v1.obj
+  #     # collision: data/AnteriorScannerMounted-v1-Collision.obj
+  #     pose: rot(90d, 0d, 180d)
+
+  frame:
+    name: robot-ee
+
+  home:
+    - configs:
+        forward: [0d, 80d, 0d, 90d, 0d, -60d, 0d]
+        neutral: [0d, 110d, 0d, 110d, 0d, -45d, 0d]
+        down: [0d, 20d, 0d, 110d, 0d, -45d, 0d]
+        # forward: [0d, 20d, 0d, 110d, 0d, 45d, 0d]
+        home: [0d, 0d, 0d, 0d, 0d, 0d, 0d]
+        upright: [0d, 45d, 0d, 0d, 0d, 0d, 0d]
+
+    # - q_ref: [ 0.,          1.91986218,  0.,          1.91986218,  0.,         -0.78539816, 0.        ]
+    #   poses:
+    #     neutral:
+    #       - [0.70710678, -0.,         -0.70710678,  0.28678159]
+    #       - [0.,          1.,         -0.,          0.        ]
+    #       - [0.70710678,  0.,          0.70710678,  0.6922874 ]
+    #       - [0.,          0.,          0.,          1.        ]
+
+    #     # standing tall:
+        #   - [ -1,  0,  0,      0]
+        #   - [  0,  0, -1, -0.400]
+        #   - [  0, -1,  0,  0.600]
+        #   - [  0,  0,  0,      1]
+
+        # seated:
+        #   - [ -1,  0,  0,      0]
+        #   - [  0,  0, -1, -0.500]
+        #   - [  0, -1,  0, -0.100]
+        #   - [  0,  0,  0,      1]
+
+    # - q_ref: [-1.3181522528277796, -1.7501574955382289, -0.8749661445617676, -2.0872918568053187, 1.5708041191101076, 0.0]
+    #   poses:
+    #     overhead:
+    #       - [ -1,  0,  0,      0]
+    #       - [  0,  1,  0, -0.600]
+    #       - [  0,  0, -1,  0.500]
+    #       - [  0,  0,  0,      1]
+
+    #     supine:
+    #       - [ -1,  0,  0,      0]
+    #       - [  0,  1,  0, -0.700]
+    #       - [  0,  0, -1,      0]
+    #       - [  0,  0,  0,      1]
+
+
+face_tracker:
+  resolution: [480, 480]
+  intrinsics:
+  - [240.0, 0.0, 240.0]
+  - [0.0, 240.0, 240.0]
+  - [0.0, 0.0, 1.0]
+  extrinsics: rot(0, 0, -90d) trans(0, 0, 0)
+
+  orthographic: false
+
+  hole_size: 1
+  inpaint: false
+  fill_tolerance: 0.1
+  blend_tolerance: 0.005
+  max_depth: 2
+
+  detector_model_path: data/mmod_human_face_detector.dat
+  predictor_model_path: data/shape_predictor_68_face_landmarks_GTX.dat
+
+  frame:
+    name: composite-face-camera
+    parent: robot-ee
+
+  # show_input: true
+  # show_intermediate: true
+  # show_composite: true
+  show_tracking: true
+
+face_cameras:
+  Right Face Camera:
+    model: perspective
+    intrinsics:
+    - [238.09710693359375, 0.0, 237.81651306152344]
+    - [0.0, 238.09710693359375, 137.79351806640625]
+    - [0.0, 0.0, 1.0]
+    distortion: [0.0, 0.0, 0.0, 0.0, 0.0]
+    extrinsics:
+    - [0.9994190455364268, -0.009325468714246226, 0.03278119967782006, 0.08138186156285257]
+    - [0.017133047241310716, 0.9689391965012066, -0.24670486856935514, 0.10917319687398176]
+    - [-0.029462350742676842, 0.24712318611748135, 0.9685360606460971, -0.1254228370495746]
+    - [0.0, 0.0, 0.0, 1.0]
+
+    
+
+    serial: 130322270681
+
+    rotate: -90
+    resolution: [480, 270]
+    fps: 30
+
+    # masks:
+    # - x: [370, 480]
+    #   y: [0, 110]
+
+    preset: data/130322270681.json
+
+    frame:
+      name: right-face-camera
+      parent: robot-ee
+
+  Left Face Camera:
+    model: perspective
+    intrinsics:
+    - [238.5500030517578, 0.0, 236.47006225585938]
+    - [0.0, 238.5500030517578, 135.7413787841797]
+    - [0.0, 0.0, 1.0]
+    distortion: [0.0, 0.0, 0.0, 0.0, 0.0]
+    extrinsics:
+    - [0.9998442655688188, 0.001617411784856419, 0.01757351951855242, 0.08349254661342495]
+    - [-0.0061170711555854915, 0.9658205959785751, 0.2591392633779546, -0.10396716946768897]
+    - [-0.0165537321963429, -0.2592064049415246, 0.9656800782804126, -0.12453550882846466]
+    - [0.0, 0.0, 0.0, 1.0]
+
+    serial: 130322270670
+
+    rotate: -90
+    resolution: [480, 270]
+    fps: 30
+
+    # masks:
+    # - x: [370, 480]
+    #   y: [160, 270]
+
+    preset: data/130322270670.json
+
+    # master: true
+
+    frame:
+      name: left-face-camera
+      parent: robot-ee
+
+  # Front Face Camera:
+  #   model: perspective
+
+  #   intrinsics:
+  #   - [240.996978759766, 0.0, 244.136581420898]
+  #   - [0.0, 240.996978759766, 135.441207885742]
+  #   - [0.0, 0.0, 1.0]
+  #   distortion: [0.0, 0.0, 0.0, 0.0, 0.0]
+  #   extrinsics:
+  #   - [-0.0203691318229437, 0.9997924805085622, 0.0003072251877702413, 0.016306525464723748]
+  #   - [-0.9555097638651302, -0.01937650210266356, -0.29432234424975035, -0.150120434406862]
+  #   - [-0.294255313677056, -0.006288647295080718, 0.9557061594904654, -0.2062203262280031]
+  #   - [0.0, 0.0, 0.0, 1.0]
+
+  #   serial: 238222070817
+
+  #   rotate: 0
+  #   resolution: [480, 270]
+  #   fps: 30
+
+  #   # masks:
+  #   # - x: [370, 480]
+  #   #   y: [0, 110]
+
+  #   preset: data/238222070817.json
+
+  #   frame:
+  #     name: front-face-camera
+  #     parent: robot-ee
+
+face_planner:
+#   velocity_limit: 1.57
+#   linear_velocity_limit: 100
+  target_window: 0.1
+
+pupil:
+  frame:
+    name: pupil-tracking
+    parent: robot-ee
+
+  offset: trans(0, 0, 0)
+
+  timestamp:
+    valid: false
+    translate: false
+
+# ranging:
+#   frame:
+#   - [1, 0, 0, -0.06e-3]
+#   - [0, 1, 0, -66.532e-3]
+#   - [0, 0, 1, 72.672e-3]
+#   - [0, 0, 0, 1]
+
+  radius: 0.1
+  downsampling: 2
+
+jogging:
+  filter_length: 0.1
+  linear_scale: 0.05
+  angular_scale: 0.1
+
+topic:
+  face_cameras: face_camera
+  face_compositor: compositor
+  face_features: face
+  range: minimum_range
+  robot_controller: robot_controller
+  face_planner: planner
+  coordinator: coordinator
+  pupil_features: pupil
+  cart_planner: cart
+  lift_state: liftkit_data
+
+process_manager:
+  topic_1: topic_1
+  
