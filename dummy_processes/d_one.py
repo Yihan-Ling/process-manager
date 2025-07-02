@@ -1,14 +1,15 @@
-from time import sleep
+
+
+from time import sleep, time
 from process_manager.log import logger
 from process_manager.util import auto_default_logging
 import logging.handlers
+import igmr_robotics_toolkit.comms.auto_init    # Has to import before CycloneDDS
 
-
-from cyclonedds.qos import Qos, Policy
 from cyclonedds.sub import Subscriber, DataReader
+from cyclonedds.qos import Qos, Policy
 from cyclonedds.pub import Publisher, DataWriter
 from cyclonedds.topic import Topic
-from igmr_robotics_toolkit.comms import auto_init
 
 from igmr_robotics_toolkit.comms.history import SubscribedStateBuffer
 from igmr_robotics_toolkit.comms.params import ParameterClient, StateClient
@@ -23,10 +24,11 @@ _log.addHandler(handler)
 
 
 try:
+    _log.info("loading parameters")
     params = ParameterClient()
-    # sc = StateClient()
+    sc = StateClient()
 except ParameterClient.InitializationTimeout:
-    _log.critical('parameter initialization timed out (is the parameter server running?)')
+    _log.error('parameter initialization timed out (is the parameter server running?)')
     raise SystemExit(1)
 
 with params:
@@ -42,11 +44,13 @@ var = 0
 while  var<15:
     _log.info(var)
     state_writer.write(ProcessState(
-        True
+        alive = True,
+        timestamp = time()
     ))
     var += 1
     sleep(1)
 state_writer.write(ProcessState(
-    False
+    alive = False,
+    timestamp = time()
 ))
 _log.critical("d_one exits")
