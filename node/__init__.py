@@ -1,17 +1,34 @@
+import igmr_robotics_toolkit.comms.auto_init
 from typing import Iterable, Mapping, Tuple
 import sys
 import subprocess
 from time import time, sleep
 from threading import Thread
+import logging.handlers
 
 from process_manager.log import logger
 from process_manager.util import auto_default_logging
 
+from cyclonedds.qos import Qos, Policy
+from cyclonedds.sub import Subscriber, DataReader
+from cyclonedds.pub import Publisher, DataWriter
+from cyclonedds.topic import Topic
+
+from igmr_robotics_toolkit.comms.history import SubscribedStateBuffer
+from igmr_robotics_toolkit.comms.params import ParameterClient, StateClient
+from igmr_robotics_toolkit.comms.history import OutOfWindowException
+
+from process_manager.types import ProcessState
+
 _log = logger(__file__)
 
+handler = logging.handlers.SocketHandler('localhost', 9020)
+handler.setLevel(logging.DEBUG)
+_log.addHandler(handler)
 class Node():
-    def __init__(self, name: str, popen: subprocess.Popen, cmd_args: list[str]):
-        self.name = name
+    def __init__(self, module_name: str, popen: subprocess.Popen, cmd_args: list[str], pc: ParameterClient):
+        self.module_name = module_name.rsplit(".", 1)[-1]
+        self.name = pc.get(f"process_manager/{self.module_name}")
         self.popen = popen
         self.logs = []
         self.cmd_args = cmd_args 
@@ -20,10 +37,21 @@ class Node():
         self.launched_times = 0
         self.relaunched = False
         self.log_severity = "DEBUG" # Default to start at DEBUG
+        self.params = pc
+        with self.params:
+            dp = self.params.participant
+            self.state_reader = SubscribedStateBuffer(self.params.get(f'process_manager/{self.module_name}'), ProcessState, domain_participant=dp)
+        
     
     def is_alive(self) -> bool:
-        return self.popen.poll() is None
-    
+        # return self.popen.poll() is None
+        # With CycloneDDS: 
+        try:
+            _, state = self.state_reader.latest
+            return state.alive
+        except OutOfWindowException:
+            _log.warning("No state received.")
+
     def get_uptime(self) -> float:
         if self.end_time:
             return self.end_time - self.start_time
@@ -54,12 +82,27 @@ class Watcher():
         self.processes: list[Node] = []
         self.logs = []
         self.stopAll = False
+        try:
+            self.params = ParameterClient()
+        except ParameterClient.InitializationTimeout:
+            print('parameter initialization timed out (is the parameter server running?)')
+            raise SystemExit(1)
+        
+        # with params:
+        #     dp = params.participant
+
+        #     sub = Subscriber(dp)
+        #     # only operate on the most recent input
+        #     qos = Qos(Policy.History.KeepLast(1))
+        #     # pub = Publisher(dp)
+        #     self.state_reader = SubscribedStateBuffer(params.get('process_manager/d_one'), ProcessState, domain_participant=dp)
+        
         
     def launch(self, module: str, *cmd_args: Iterable[object], **cmd_kwargs: Mapping[str, object]) -> subprocess.Popen:
         arg = [sys.executable, '-u', '-m', module] + \
             [str(o) for o in cmd_args] + \
             [f"--{k.replace('_', '-')}={v}" for (k, v) in cmd_kwargs.items()]
-        node = Node(name=module, 
+        node = Node(module_name=module, 
             popen=
             subprocess.Popen(
                 arg,
@@ -68,7 +111,8 @@ class Watcher():
                 text=True,
                 bufsize=1
             ),
-            cmd_args=arg 
+            cmd_args=arg,
+            pc = self.params 
         )
         self.processes.append(node)
         

@@ -260,4 +260,6 @@ topic:
 
 process_manager:
   d_one: process_one
+  d_two: process_two
+  d_three: process_three
   

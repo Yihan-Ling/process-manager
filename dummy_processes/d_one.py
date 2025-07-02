@@ -1,5 +1,3 @@
-
-
 from time import sleep, time
 from process_manager.log import logger
 from process_manager.util import auto_default_logging
@@ -38,7 +36,7 @@ with params:
     # only operate on the most recent input
     qos = Qos(Policy.History.KeepLast(1))
     pub = Publisher(dp)
-    state_writer = DataWriter(pub, Topic(dp, params.get('process_manager/d_one'), ProcessState))
+    state_writer = DataWriter(pub, Topic(dp, params.get('process_manager/process_manager.dummy_processes.d_one'), ProcessState))
 
 var = 0
 while  var<15:

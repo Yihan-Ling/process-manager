@@ -9,7 +9,7 @@ from process_manager.log.server import start_log_server
 _log = logger(__file__)
 
 
-def start_processes(watcher):
+def start_processes(watcher:Watcher):
     
     watcher.launch('process_manager.dummy_processes.d_one')
     watcher.launch('process_manager.dummy_processes.d_two')
