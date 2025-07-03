@@ -36,9 +36,9 @@ with params:
     # only operate on the most recent input
     qos = Qos(Policy.History.KeepLast(1))
     pub = Publisher(dp)
-    state_writer = DataWriter(pub, Topic(dp, params.get('process_manager.dummy_processes.d_two'), ProcessState))
+    state_writer = DataWriter(pub, Topic(dp, params.get('process_manager/d_two'), ProcessState))
 
-while random()>0.1:
+while random.random()>0.1:
     _log.info("d_two run")
     state_writer.write(ProcessState(
         alive = True,

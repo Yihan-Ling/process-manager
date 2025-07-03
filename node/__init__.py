@@ -38,19 +38,20 @@ class Node():
         self.relaunched = False
         self.log_severity = "DEBUG" # Default to start at DEBUG
         self.params = pc
+        self.awaiting_state_since: float | None = time()
         with self.params:
             dp = self.params.participant
             self.state_reader = SubscribedStateBuffer(self.params.get(f'process_manager/{self.module_name}'), ProcessState, domain_participant=dp)
         
     
     def is_alive(self) -> bool:
-        # return self.popen.poll() is None
-        # With CycloneDDS: 
         try:
             _, state = self.state_reader.latest
+            if state.alive:
+                self.awaiting_state_since = None
             return state.alive
         except OutOfWindowException:
-            _log.warning("No state received.")
+            return False
 
     def get_uptime(self) -> float:
         if self.end_time:
@@ -119,8 +120,9 @@ class Watcher():
         # Thread(target=self._read_node_output, args=(node,), daemon=True).start()
 
 
-    def relaunch_node(self, failed_node: Node) -> Node:
+    def relaunch_node(self, failed_node: Node):
         _log.info(f"Relaunching node: {failed_node.name}")
+        failed_node.awaiting_state_since = time()
         new_popen = subprocess.Popen(
             failed_node.cmd_args,
             stdout=subprocess.PIPE,
@@ -128,22 +130,25 @@ class Watcher():
             text=True,
             bufsize=1
         )
-        new_node = Node(name=f'{failed_node.name}', popen=new_popen, cmd_args=failed_node.cmd_args)
-        new_node.launched_times = failed_node.launched_times + 1
-        # self.processes.remove(failed_node)
-        self.processes.append(new_node)
+        failed_node.popen = new_popen
+        failed_node.launched_times += 1
+        # failed_node.relaunched = True
+        # If restart as a new node
+        # new_node = Node(module_name=f'{failed_node.module_name}', popen=new_popen, cmd_args=failed_node.cmd_args, pc=failed_node.params)
+        # new_node.launched_times = failed_node.launched_times + 1
+        # # self.processes.remove(failed_node)
+        # self.processes.append(new_node)
         # Thread(target=self._read_node_output, args=(new_node,), daemon=True).start()
 
-    def _query_nodes(self) -> Tuple[Iterable[subprocess.Popen], Iterable[subprocess.Popen]]:
-        active = []
-        failed = []
+    def _query_nodes(self):
+        now = time()
+        active, failed = [], []
         for n in self.processes:
             if n.is_alive():
                 active.append(n)
-            elif not n.relaunched:
+            elif n.awaiting_state_since is None or now - n.awaiting_state_since > 2:
                 failed.append(n)
-
-        return (active, failed)
+        return active, failed
 
     # def _read_node_output(self, node: Node):
     #     for line in node.popen.stdout:
@@ -162,14 +167,15 @@ class Watcher():
                 if self.stopAll:
                     break
                 sleep(period)
-                (self.active, self.failed) = self._query_nodes()
+                (active, failed) = self._query_nodes()
                 # TODO: chnage this maybe
-                if len(self.failed)>=1:
-                    for failed_node in self.failed:
+                if len(failed)>=1:
+                    for failed_node in failed:
                         _log.warning(f'Node {failed_node.name} has failed')
-                        failed_node.relaunched = True
+                        failed_node.awaiting_state = True
                         self.relaunch_node(failed_node)
-
+                        
+                        # failed_node.relaunched = False
                     # break
 
         except KeyboardInterrupt:
@@ -198,4 +204,4 @@ class Watcher():
                     node.popen.terminate()
                     node.popen.wait(timeout=5)
                 except Exception as e:
-                    print(f"Failed to terminate {node.name}: {e}")
+                    _log.critical(f"Failed to terminate {node.name}: {e}")

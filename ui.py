@@ -20,7 +20,7 @@ class ProcessListItem(ListItem):
         
         super().__init__(
             Horizontal(
-                Label(node.name if node.launched_times==0 else f'{node.name} ({node.launched_times})', id="node_name"),
+                Label(node.name, id="node_name"),
                 node_status_dot,
                 id="list_item"
             )
@@ -109,12 +109,12 @@ class Process_Manager_App(App):
         self.stats.clear()
 
         for node in self.watcher.processes:
-            key = node.name if node.launched_times == 0 else f'{node.name} ({node.launched_times})'
+            name = node.name
             uptime = f"{node.get_uptime():.1f} s"
             status = "Running" if node.is_alive() else "Terminated"
             log_level = node.log_severity
 
-            self.stats.add_row(key, uptime, status, log_level, key=key)
+            self.stats.add_row(name, uptime, status, log_level)
 
         self.stats.action_scroll_bottom()
         
