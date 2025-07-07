@@ -31,6 +31,7 @@ class Node():
         self.name = pc.get(f"process_manager/{self.module_name}")
         self.popen = popen
         self.logs = []
+        self.recent_severities: list[str] = []
         self.cmd_args = cmd_args 
         self.start_time = time()
         self.end_time = None
@@ -54,18 +55,24 @@ class Node():
             return False
 
     def get_uptime(self) -> float:
-        if self.end_time:
-            return self.end_time - self.start_time
-        elif self.is_alive():
-            return time() - self.start_time
-        else:
-            self.end_time = time()
-            return self.end_time - self.start_time
+        # if self.end_time:
+        #     return self.end_time - self.start_time
+        # elif self.is_alive():
+        #     return time() - self.start_time
+        # else:
+        #     self.end_time = time()
+        #     return self.end_time - self.start_time
+        return time()-self.start_time
         
     def update_severity(self, level: str):
         severity_order = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-        if severity_order.index(level) > severity_order.index(self.log_severity):
-            self.log_severity = level
+        self.recent_severities.append(level)
+        if len(self.recent_severities) > 50:
+            self.recent_severities.pop(0)
+            
+        max_index = max(severity_order.index(lvl) for lvl in self.recent_severities)
+        self.log_severity = severity_order[max_index]
+
             
     def get_severity_color(self) -> str:
         return {
@@ -122,6 +129,7 @@ class Watcher():
 
     def relaunch_node(self, failed_node: Node):
         _log.info(f"Relaunching node: {failed_node.name}")
+        failed_node.start_time = time()
         failed_node.awaiting_state_since = time()
         new_popen = subprocess.Popen(
             failed_node.cmd_args,
@@ -141,13 +149,13 @@ class Watcher():
         # Thread(target=self._read_node_output, args=(new_node,), daemon=True).start()
 
     def _query_nodes(self):
-        now = time()
         active, failed = [], []
         for n in self.processes:
             if n.is_alive():
                 active.append(n)
-            elif n.awaiting_state_since is None or now - n.awaiting_state_since > 2:
+            elif time() - n.start_time > 2:
                 failed.append(n)
+                
         return active, failed
 
     # def _read_node_output(self, node: Node):

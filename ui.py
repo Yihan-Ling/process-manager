@@ -40,6 +40,7 @@ class Process_Manager_App(App):
         self.watcher = watcher
         self.process_list = DataTable(id="process_list")
         self.detail_panel = Log(id="detail_panel")
+        self.main_log = Log(id="main_log")
         # self.stats = DataTable(id="table")
         self.detail_label = Label("Select a process to see detail", id="detail_label")
         self.selected_index = reactive(0)
@@ -48,17 +49,17 @@ class Process_Manager_App(App):
         self.show_all_logs = False
         self.log_server = log_server
     
-    def exit(self) -> None:
-        _log.info("Shutting down UI: stopping processes and log server...")
+    # def exit(self) -> None:
+    #     _log.info("Shutting down UI: stopping processes and log server...")
 
-        self.watcher.stop_all()
+    #     self.watcher.stop_all()
         
-        if hasattr(self, "log_server"):
-            self.log_server.shutdown()
-            self.log_server.server_close()
+    #     if hasattr(self, "log_server"):
+    #         self.log_server.shutdown()
+    #         self.log_server.server_close()
             
-        # super().exit() 
-        sys.exit()
+    #     # super().exit() 
+    #     sys.exit()
  
     
     def compose(self) -> ComposeResult:

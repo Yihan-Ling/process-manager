@@ -22,7 +22,7 @@ _log.addHandler(handler)
 
 
 try:
-    _log.info("loading parameters")
+    _log.warning("loading parameters")
     params = ParameterClient()
     sc = StateClient()
 except ParameterClient.InitializationTimeout:
