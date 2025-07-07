@@ -89,6 +89,7 @@ class Watcher():
         self.failed = []
         self.processes: list[Node] = []
         self.logs = []
+        self.main_logs = []
         self.stopAll = False
         try:
             self.params = ParameterClient()

@@ -32,6 +32,7 @@ def start_log_server(watcher: Watcher):
                     watcher.logs.pop(0)
 
                 # ✅ Add to matching node's logs
+                flag = False
                 for node in watcher.processes:
                     # if node.relaunched:
                     #     continue
@@ -40,8 +41,10 @@ def start_log_server(watcher: Watcher):
                         if len(node.logs) > 1000:
                             node.logs.pop(0)
                         node.update_severity(record.levelname)
+                        flag = True
                         break
-
+                if not flag:
+                    watcher.main_logs.append(msg)
                 # # Optional: Dispatch to main process's logger system (e.g., if you want colored console output too)
                 # logger = logging.getLogger(record.name)
                 # logger.handle(record)

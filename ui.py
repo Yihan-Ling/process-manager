@@ -49,17 +49,17 @@ class Process_Manager_App(App):
         self.show_all_logs = False
         self.log_server = log_server
     
-    # def exit(self) -> None:
-    #     _log.info("Shutting down UI: stopping processes and log server...")
-
-    #     self.watcher.stop_all()
+    def exit(self) -> None:
+        _log.info("Shutting down UI: stopping processes and log server...")
+        sys.exit()
+        self.watcher.stop_all()
         
-    #     if hasattr(self, "log_server"):
-    #         self.log_server.shutdown()
-    #         self.log_server.server_close()
+        if hasattr(self, "log_server"):
+            self.log_server.shutdown()
+            self.log_server.server_close()
             
-    #     # super().exit() 
-    #     sys.exit()
+        # super().exit() 
+        
  
     
     def compose(self) -> ComposeResult:
@@ -70,7 +70,7 @@ class Process_Manager_App(App):
             with Vertical(id= "right_panel"):
                 yield self.detail_label
                 yield self.detail_panel
-                # yield self.stats
+                yield self.main_log
 
 
     def on_mount(self) -> None:
@@ -82,7 +82,7 @@ class Process_Manager_App(App):
         
         self.set_interval(self.period, self.refresh_process_list)    
         self.set_interval(self.period, lambda: self.call_later(self.refresh_selected_logs))
-        # self.set_interval(self.period, self.refresh_stats)
+        self.set_interval(self.period, self.refresh_main_logs)
     
     def initialize_process_list(self):
         self.process_list.add_columns("Name", "Uptime", "Status", "Log Level")
@@ -139,7 +139,12 @@ class Process_Manager_App(App):
             self.detail_label.update("Showing selected terminal prints")
             for line in self.current_node.logs:
                 self.detail_panel.write_line(line)
-            
+                
+                
+    def refresh_main_logs(self):
+        self.main_log.clear
+        for line in self.watcher.main_logs:
+            self.main_log.write_line(line)
     # def refresh_stats(self):
 
     #     self.stats.clear()
