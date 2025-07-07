@@ -153,7 +153,8 @@ class Watcher():
         for n in self.processes:
             if n.is_alive():
                 active.append(n)
-            elif time() - n.start_time > 2:
+            # elif time() - n.start_time > 2:
+            elif n.popen.poll() is not None:
                 failed.append(n)
                 
         return active, failed
