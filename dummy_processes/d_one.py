@@ -31,9 +31,7 @@ except ParameterClient.InitializationTimeout:
 
 with params:
     dp = params.participant
-
     sub = Subscriber(dp)
-    # only operate on the most recent input
     qos = Qos(Policy.History.KeepLast(1))
     pub = Publisher(dp)
     state_writer = DataWriter(pub, Topic(dp, params.get('process_manager/d_one'), ProcessState))
