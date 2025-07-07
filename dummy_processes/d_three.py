@@ -39,14 +39,14 @@ with params:
 
 
 var = 0
-# while True:
-#     # _log.info("d_three running")
-#     state_writer.write(ProcessState(
-#         alive = True,
-#         timestamp = time()
-#     ))
-#     var+=1
-#     sleep(1)
+while True:
+    # _log.info("d_three running")
+    state_writer.write(ProcessState(
+        alive = True,
+        timestamp = time()
+    ))
+    var+=1
+    sleep(1)
 state_writer.write(ProcessState(
     alive = False,
     timestamp = time()

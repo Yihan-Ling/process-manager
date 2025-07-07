@@ -43,6 +43,7 @@ class Process_Manager_App(App):
         self.main_log = Log(id="main_log")
         # self.stats = DataTable(id="table")
         self.detail_label = Label("Select a process to see detail", id="detail_label")
+        self.main_label = Label("Process Manager Logs", id="main_label")
         self.selected_index = reactive(0)
         self.period = 1
         self.current_node = None
@@ -60,7 +61,6 @@ class Process_Manager_App(App):
             
         # super().exit() 
         
- 
     
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
@@ -70,6 +70,7 @@ class Process_Manager_App(App):
             with Vertical(id= "right_panel"):
                 yield self.detail_label
                 yield self.detail_panel
+                yield self.main_label
                 yield self.main_log
 
 

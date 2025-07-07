@@ -153,6 +153,7 @@ class Watcher():
         active, failed = [], []
         for n in self.processes:
             if n.is_alive():
+                n.relaunched = False
                 active.append(n)
             # elif time() - n.start_time > 2:
             elif n.popen.poll() is not None:
@@ -182,8 +183,9 @@ class Watcher():
                 if len(failed)>=1:
                     for failed_node in failed:
                         _log.warning(f'Node {failed_node.name} has failed')
-                        failed_node.awaiting_state = True
-                        self.relaunch_node(failed_node)
+                        if not failed_node.relaunched:
+                            self.relaunch_node(failed_node)
+                            failed_node.relaunced = True
                         
                         # failed_node.relaunched = False
                     # break
