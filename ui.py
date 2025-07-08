@@ -143,9 +143,10 @@ class Process_Manager_App(App):
                 
                 
     def refresh_main_logs(self):
-        self.main_log.clear
+        self.main_log.clear()
         for line in self.watcher.main_logs:
             self.main_log.write_line(line)
+            
     # def refresh_stats(self):
 
     #     self.stats.clear()
