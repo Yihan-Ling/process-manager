@@ -35,7 +35,7 @@ class Process_Manager_App(App):
         ("a", "toggle_logs", "Toggle All/Selected Prints"),
     ]
     
-    def __init__(self, watcher: Watcher, log_server, **kwargs):
+    def __init__(self, watcher: Watcher, **kwargs):
         super().__init__(**kwargs)
         self.watcher = watcher
         self.process_list = DataTable(id="process_list")
@@ -48,7 +48,7 @@ class Process_Manager_App(App):
         self.period = 1
         self.current_node = None
         self.show_all_logs = False
-        self.log_server = log_server
+        # self.log_server = log_server
     
     def exit(self) -> None:
         _log.info("Shutting down UI: stopping processes and log server...")

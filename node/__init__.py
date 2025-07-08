@@ -20,11 +20,14 @@ from igmr_robotics_toolkit.comms.history import OutOfWindowException
 
 from process_manager.types import ProcessState
 
+from process_manager.log.dds_handler import DDSLogHandler
+
 _log = logger(__file__)
 
-handler = logging.handlers.SocketHandler('localhost', 9020)
-handler.setLevel(logging.DEBUG)
-_log.addHandler(handler)
+
+dds_handler = DDSLogHandler()
+dds_handler.setLevel(logging.DEBUG)
+_log.addHandler(dds_handler)
 class Node():
     def __init__(self, module_name: str, popen: subprocess.Popen, cmd_args: list[str], pc: ParameterClient):
         self.module_name = module_name.rsplit(".", 1)[-1]

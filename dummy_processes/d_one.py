@@ -14,11 +14,14 @@ from igmr_robotics_toolkit.comms.params import ParameterClient, StateClient
 
 from process_manager.types import ProcessState
 
+from process_manager.log.dds_handler import DDSLogHandler
+
 _log = logger(__file__)
 
-handler = logging.handlers.SocketHandler('localhost', 9020)
-handler.setLevel(logging.DEBUG)
-_log.addHandler(handler)
+
+dds_handler = DDSLogHandler()
+dds_handler.setLevel(logging.DEBUG)
+_log.addHandler(dds_handler)
 
 
 try:

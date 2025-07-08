@@ -4,9 +4,15 @@ from process_manager.ui import Process_Manager_App
 from process_manager.log import logger
 from process_manager.util import auto_default_logging
 from process_manager.log.server import start_log_server
-
+from process_manager.log.dds_handler import DDSLogHandler
+import logging
+from process_manager.log.log_listener import start_dds_log_listener
 
 _log = logger(__file__)
+
+dds_handler = DDSLogHandler()
+dds_handler.setLevel(logging.DEBUG)
+_log.addHandler(dds_handler)
 
 
 def start_processes(watcher:Watcher):
@@ -25,12 +31,13 @@ if __name__ == "__main__":
     watcher = Watcher()
     _log.info("Starting the process manager...")
     start_processes(watcher)
-    log_server = start_log_server(watcher)
+    # log_server = start_log_server(watcher)
+    start_dds_log_listener(watcher)
     
     watch_thread = Thread(target=run_watch)
     watch_thread.daemon = True 
     watch_thread.start()
     
-    app = Process_Manager_App(watcher=watcher, log_server=log_server)
-    app.log_server = log_server 
+    app = Process_Manager_App(watcher=watcher)
+    # app.log_server = log_server 
     app.run()
