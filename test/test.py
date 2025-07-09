@@ -10,7 +10,8 @@ from igmr_robotics_toolkit.comms.history import SubscribedStateBuffer
 from igmr_robotics_toolkit.comms.params import ParameterClient, StateClient
 from igmr_robotics_toolkit.comms.history import OutOfWindowException
 
-from process_manager.types import ProcessState
+from process_manager.types import ProcessState, LogMessage
+
 
 try:
     params = ParameterClient()
@@ -26,12 +27,17 @@ with params:
     # only operate on the most recent input
     qos = Qos(Policy.History.KeepLast(1))
     pub = Publisher(dp)
-    state_reader = SubscribedStateBuffer(params.get('process_manager/d_one'), ProcessState, domain_participant=dp)
+
+    # reader = SubscribedStateBuffer("process_manager/logs", LogMessage, domain_participant=dp)
+    topic = Topic(dp, "process_manager/logs", LogMessage)
+    reader = DataReader(sub, topic, qos=Qos(Policy.History.KeepLast(100)))
 
 while True:
-    try:
-        _, state = state_reader.latest
-        print(state.alive)
-    except OutOfWindowException:
-        print("No message received yet.")
+    samples = reader.take() 
+    if not samples:
+        print("No messages.")
+    for sample in samples:
+        msg = sample
+        print(f"[{msg.levelname}] {msg.name}: {msg.message}")
+
     sleep(1)
