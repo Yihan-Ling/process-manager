@@ -15,12 +15,7 @@ def start_dds_log_listener(watcher):
         raise SystemExit(1)
     with params:
         dp = params.participant
-
         sub = Subscriber(dp)
-        # only operate on the most recent input
-        # qos = Qos(Policy.History.KeepLast(1))
-        # pub = Publisher(dp)
-        # reader = SubscribedStateBuffer("process_manager/logs", LogMessage, domain_participant=dp)
         topic = Topic(dp, "process_manager/logs", LogMessage)
         reader = DataReader(sub, topic, qos=Qos(Policy.History.KeepLast(100)))
 

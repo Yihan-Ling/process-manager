@@ -11,8 +11,14 @@ from rich.text import Text
 
 import sys
 
+from process_manager.log.dds_handler import DDSLogHandler
+import logging
+
 _log = logger(__file__)
 
+dds_handler = DDSLogHandler()
+dds_handler.setLevel(logging.DEBUG)
+_log.addHandler(dds_handler)
 # class ProcessListItem(ListItem):
 #     def __init__(self, node: Node):
 #         self.node = node
@@ -33,6 +39,8 @@ class Process_Manager_App(App):
     CSS_PATH = "manager.tcss"
     BINDINGS = [
         ("a", "toggle_logs", "Toggle All/Selected Prints"),
+        ("t", "manual_terminate", "Manual Terminate"),
+        ("r", "manual_restart", "Manual Restart"),
     ]
     
     def __init__(self, watcher: Watcher, **kwargs):
@@ -46,18 +54,18 @@ class Process_Manager_App(App):
         self.main_label = Label("Process Manager Logs", id="main_label")
         self.selected_index = reactive(0)
         self.period = 1
-        self.current_node = None
+        self.selected_node = None
         self.show_all_logs = False
         # self.log_server = log_server
     
-    def exit(self) -> None:
-        _log.info("Shutting down UI: stopping processes and log server...")
-        sys.exit()
-        self.watcher.stop_all()
+    # def exit(self) -> None:
+    #     _log.info("Shutting down UI: stopping processes and log server...")
+    #     sys.exit()
+    #     self.watcher.stop_all()
         
-        if hasattr(self, "log_server"):
-            self.log_server.shutdown()
-            self.log_server.server_close()
+    #     if hasattr(self, "log_server"):
+    #         self.log_server.shutdown()
+    #         self.log_server.server_close()
             
         # super().exit() 
         
@@ -114,7 +122,6 @@ class Process_Manager_App(App):
             self.process_list.update_cell_at((row_index, 3), log_level)
 
     async def on_data_table_row_selected(self, message: DataTable.RowSelected) -> None:
-        cursor_row = message.cursor_row
         row_key = message.row_key
         row = self.process_list.get_row(row_key)
 
@@ -126,7 +133,7 @@ class Process_Manager_App(App):
         # Match node by name
         for node in self.watcher.processes:
             if node.name == selected_name:
-                self.current_node = node
+                self.selected_node = node
                 self.refresh_selected_logs()
                 break
             
@@ -136,9 +143,9 @@ class Process_Manager_App(App):
             self.detail_label.update("Showing all terminal prints")
             for line in self.watcher.logs:
                 self.detail_panel.write_line(line)
-        elif self.current_node:
+        elif self.selected_node:
             self.detail_label.update("Showing selected terminal prints")
-            for line in self.current_node.logs:
+            for line in self.selected_node.logs:
                 self.detail_panel.write_line(line)
                 
                 
@@ -165,4 +172,29 @@ class Process_Manager_App(App):
     def action_toggle_logs(self) -> None:
         self.show_all_logs = not self.show_all_logs
         self.refresh_selected_logs()
+    
+    
+    # def get_selected_row(self) -> list:
+    #     row_index = self.process_list.cursor_row
+    #     row_key = self.process_list.get_row_key(row_index)
+    #     return self.process_list.get_row(row_key)
+    
+    def action_manual_terminate(self) -> None:
+        _log.info("hhh")
+        if self.selected_node == None:
+            _log.warning("No process selected")
+            return
+        self.selected_node.forced_stop = True
+        p = self.selected_node.popen
+        p.terminate()
+        p.wait()
+        _log.warning(f"Forced terminate process: {self.selected_node.name}")
+        
+    def action_manual_restart(self) -> None:
+        _log.info(f"Restarting process: {self.selected_node.name}...")
+        if self.selected_node == None:
+            _log.warning("No process selected")
+            return
+        self.selected_node.forced_stop = False
+
     

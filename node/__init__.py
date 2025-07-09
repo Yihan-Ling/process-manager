@@ -43,6 +43,7 @@ class Node():
         self.log_severity = "DEBUG" # Default to start at DEBUG
         self.params = pc
         self.awaiting_state_since: float | None = time()
+        self.forced_stop = False
         with self.params:
             dp = self.params.participant
             self.state_reader = SubscribedStateBuffer(self.params.get(f'process_manager/{self.module_name}'), ProcessState, domain_participant=dp)
@@ -152,7 +153,7 @@ class Watcher():
         # self.processes.append(new_node)
         # Thread(target=self._read_node_output, args=(new_node,), daemon=True).start()
 
-    def _query_nodes(self):
+    def _query_nodes(self) -> tuple[list[Node], list[Node]]:
         active, failed = [], []
         for n in self.processes:
             if n.is_alive():
@@ -186,7 +187,7 @@ class Watcher():
                 if len(failed)>=1:
                     for failed_node in failed:
                         _log.warning(f'Node {failed_node.name} has failed')
-                        if not failed_node.relaunched:
+                        if (not failed_node.relaunched) and (not failed_node.forced_stop):
                             self.relaunch_node(failed_node)
                             failed_node.relaunced = True
                         

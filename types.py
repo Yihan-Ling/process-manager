@@ -5,8 +5,8 @@ from cyclonedds.idl import IdlStruct, types
 
 
 @dataclass
-class ProcessState(IdlStruct):
-    alive:  bool
+class HeartBeat(IdlStruct):
+    name: str
     timestamp: types.float64
     
 @dataclass
