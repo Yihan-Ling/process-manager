@@ -1,3 +1,4 @@
+from __future__ import annotations
 import igmr_robotics_toolkit.comms.auto_init
 from typing import Iterable, Mapping, Tuple
 import sys
@@ -18,7 +19,7 @@ from igmr_robotics_toolkit.comms.history import SubscribedStateBuffer
 from igmr_robotics_toolkit.comms.params import ParameterClient, StateClient
 from igmr_robotics_toolkit.comms.history import OutOfWindowException
 
-from process_manager.types import ProcessState
+from process_manager.types import Heartbeat
 
 from process_manager.log.dds_handler import DDSLogHandler
 
@@ -29,7 +30,7 @@ dds_handler = DDSLogHandler()
 dds_handler.setLevel(logging.DEBUG)
 _log.addHandler(dds_handler)
 class Node():
-    def __init__(self, module_name: str, popen: subprocess.Popen, cmd_args: list[str], pc: ParameterClient):
+    def __init__(self, module_name: str, popen: subprocess.Popen, cmd_args: list[str], pc: ParameterClient, watcher: Watcher):
         self.module_name = module_name.rsplit(".", 1)[-1]
         self.name = pc.get(f"process_manager/{self.module_name}")
         self.popen = popen
@@ -44,28 +45,20 @@ class Node():
         self.params = pc
         self.awaiting_state_since: float | None = time()
         self.forced_stop = False
-        with self.params:
-            dp = self.params.participant
-            self.state_reader = SubscribedStateBuffer(self.params.get(f'process_manager/{self.module_name}'), ProcessState, domain_participant=dp)
+        self.watcher = watcher
         
     
     def is_alive(self) -> bool:
-        try:
-            _, state = self.state_reader.latest
-            if state.alive:
-                self.awaiting_state_since = None
-            return state.alive
-        except OutOfWindowException:
+        last_beat = self.watcher.last_heartbeats.get(self.name)
+        if last_beat is None:
+            _log.debug(f"No heartbeat ever received from {self.name}")
             return False
+        if time() - last_beat >= 5.0:
+            # _log.warning(time() - last_beat)
+            return False
+        return True
 
     def get_uptime(self) -> float:
-        # if self.end_time:
-        #     return self.end_time - self.start_time
-        # elif self.is_alive():
-        #     return time() - self.start_time
-        # else:
-        #     self.end_time = time()
-        #     return self.end_time - self.start_time
         return time()-self.start_time
         
     def update_severity(self, level: str):
@@ -94,12 +87,20 @@ class Watcher():
         self.processes: list[Node] = []
         self.logs = []
         self.main_logs = []
+        self.last_heartbeats: dict[str, float] = {}
         self.stopAll = False
+        self.registered_names = []
         try:
             self.params = ParameterClient()
         except ParameterClient.InitializationTimeout:
             print('parameter initialization timed out (is the parameter server running?)')
             raise SystemExit(1)
+        
+        with self.params:
+            dp = self.params.participant
+            sub = Subscriber(dp)
+            topic = Topic(dp, "heart_beats", Heartbeat)
+            self.heartbeat_reader = DataReader(sub, topic, qos=Qos(Policy.History.KeepLast(100)))
         
         # with params:
         #     dp = params.participant
@@ -125,14 +126,18 @@ class Watcher():
                 bufsize=1
             ),
             cmd_args=arg,
-            pc = self.params 
+            pc = self.params, 
+            watcher=self
         )
         self.processes.append(node)
+        self.registered_names.append(node.name)
         
         # Thread(target=self._read_node_output, args=(node,), daemon=True).start()
 
 
     def relaunch_node(self, failed_node: Node):
+        if self.stopAll: 
+            return
         _log.info(f"Relaunching node: {failed_node.name}")
         failed_node.start_time = time()
         failed_node.awaiting_state_since = time()
@@ -182,6 +187,9 @@ class Watcher():
                 if self.stopAll:
                     break
                 sleep(period)
+                
+                self.update_node_status()
+                
                 (active, failed) = self._query_nodes()
                 # TODO: chnage this maybe
                 if len(failed)>=1:
@@ -215,9 +223,22 @@ class Watcher():
     def stop_all(self):
         self.stopAll = True 
         for node in self.processes:
-            if node.is_alive():
-                try:
-                    node.popen.terminate()
-                    node.popen.wait(timeout=5)
-                except Exception as e:
-                    _log.critical(f"Failed to terminate {node.name}: {e}")
+            # if node.is_alive():
+            try:
+                node.popen.terminate()
+                node.popen.wait(timeout=5)
+            except Exception as e:
+                _log.critical(f"Failed to terminate {node.name}: {e}")
+                    
+                    
+    def update_node_status(self):
+        heart_beats = self.heartbeat_reader.take()
+        for heart_beat in heart_beats:
+            if not isinstance(heart_beat, Heartbeat):
+                continue
+            name = heart_beat.name
+            timestamp = heart_beat.timestamp
+            self.last_heartbeats[name] = timestamp
+            _log.info(time()-timestamp)
+            if name not in self.registered_names:
+                _log.warning(f"Unregistered heartbeat detected from {name}")

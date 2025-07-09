@@ -5,7 +5,7 @@ from cyclonedds.idl import IdlStruct, types
 
 
 @dataclass
-class HeartBeat(IdlStruct):
+class Heartbeat(IdlStruct):
     name: str
     timestamp: types.float64
     

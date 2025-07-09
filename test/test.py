@@ -1,4 +1,4 @@
-from time import sleep
+from time import sleep, time
 import igmr_robotics_toolkit.comms.auto_init
 
 from cyclonedds.qos import Qos, Policy
@@ -10,7 +10,7 @@ from igmr_robotics_toolkit.comms.history import SubscribedStateBuffer
 from igmr_robotics_toolkit.comms.params import ParameterClient, StateClient
 from igmr_robotics_toolkit.comms.history import OutOfWindowException
 
-from process_manager.types import ProcessState, LogMessage
+from process_manager.types import LogMessage, Heartbeat
 
 
 try:
@@ -29,15 +29,18 @@ with params:
     pub = Publisher(dp)
 
     # reader = SubscribedStateBuffer("process_manager/logs", LogMessage, domain_participant=dp)
-    topic = Topic(dp, "process_manager/logs", LogMessage)
+    topic = Topic(dp, "heart_beats", Heartbeat)
     reader = DataReader(sub, topic, qos=Qos(Policy.History.KeepLast(100)))
 
 while True:
     samples = reader.take() 
-    if not samples:
-        print("No messages.")
+    
     for sample in samples:
+        if not isinstance(sample, Heartbeat):
+            print("No messages.")
+            continue
         msg = sample
-        print(f"[{msg.levelname}] {msg.name}: {msg.message}")
+        print(f"[{msg.name}]: {msg.timestamp}")
+        print(time()-msg.timestamp)
 
-    sleep(1)
+    sleep(0.5)

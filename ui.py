@@ -58,16 +58,11 @@ class Process_Manager_App(App):
         self.show_all_logs = False
         # self.log_server = log_server
     
-    # def exit(self) -> None:
-    #     _log.info("Shutting down UI: stopping processes and log server...")
-    #     sys.exit()
-    #     self.watcher.stop_all()
-        
-    #     if hasattr(self, "log_server"):
-    #         self.log_server.shutdown()
-    #         self.log_server.server_close()
+    def exit(self) -> None:
+        _log.info("Shutting down UI: stopping processes and log server...")
+        self.watcher.stop_all()
             
-        # super().exit() 
+        super().exit() 
         
     
     def compose(self) -> ComposeResult:

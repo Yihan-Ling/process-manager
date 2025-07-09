@@ -12,7 +12,7 @@ from cyclonedds.topic import Topic
 from igmr_robotics_toolkit.comms.history import SubscribedStateBuffer
 from igmr_robotics_toolkit.comms.params import ParameterClient, StateClient
 
-from process_manager.types import ProcessState
+from process_manager.types import Heartbeat
 import random
 
 from process_manager.log.dds_handler import DDSLogHandler
@@ -38,17 +38,14 @@ with params:
     # only operate on the most recent input
     qos = Qos(Policy.History.KeepLast(1))
     pub = Publisher(dp)
-    state_writer = DataWriter(pub, Topic(dp, params.get('process_manager/d_two'), ProcessState))
+    state_writer = DataWriter(pub, Topic(dp, "heart_beats", Heartbeat))
 
 while random.random()>0.1:
     _log.info("d_two run")
-    state_writer.write(ProcessState(
-        alive = True,
-        timestamp = time()
+    state_writer.write(Heartbeat(
+        name = params.get("process_manager/d_two"),
+        timestamp= time()
     ))
     sleep(2)
-state_writer.write(ProcessState(
-    alive = False,
-    timestamp = time()
-))
+
 _log.warning("d_two exit")
