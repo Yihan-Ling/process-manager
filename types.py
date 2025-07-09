@@ -10,7 +10,7 @@ class ProcessState(IdlStruct):
     timestamp: types.float64
     
 @dataclass
-class LogMessage:
+class LogMessage(IdlStruct):
     name: str         # Logger name (e.g., "dummy_processes.d_one")
     levelname: str    # "INFO", "WARNING", etc.
     message: str      # The log message

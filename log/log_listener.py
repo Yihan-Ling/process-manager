@@ -7,22 +7,28 @@ from process_manager.types import LogMessage
 
 
 def start_dds_log_listener(watcher):
-    """
-    Start a background thread to listen for LogMessage DDS messages
-    and route them to the appropriate watcher and nodes.
-    """
-    params = ParameterClient()
-    dp = params.participant
-    sub = Subscriber(dp)
-    topic = Topic(dp, "process_manager/logs", LogMessage)
-    reader = DataReader(sub, topic, qos=Qos(Policy.History.KeepLast(10)))
+    try:
+        params = ParameterClient()
+        # sc = StateClient()
+    except ParameterClient.InitializationTimeout:
+        print('parameter initialization timed out (is the parameter server running?)')
+        raise SystemExit(1)
+    with params:
+        dp = params.participant
+
+        sub = Subscriber(dp)
+        # only operate on the most recent input
+        # qos = Qos(Policy.History.KeepLast(1))
+        # pub = Publisher(dp)
+        # reader = SubscribedStateBuffer("process_manager/logs", LogMessage, domain_participant=dp)
+        topic = Topic(dp, "process_manager/logs", LogMessage)
+        reader = DataReader(sub, topic, qos=Qos(Policy.History.KeepLast(100)))
 
     def listen():
         while True:
-            sample = reader.read()
-            for msg in sample:
-                record = msg[0]
-                formatted = f"{record.name} {record.levelname}: {record.message}"
+            msgs = reader.take()
+            for msg in msgs:
+                formatted = f"{msg.name}  [{msg.levelname}]: {msg.message}"
 
                 # Store in global log buffer
                 watcher.logs.append(formatted)
@@ -31,11 +37,11 @@ def start_dds_log_listener(watcher):
 
                 # Try to route to the correct node
                 for node in watcher.processes:
-                    if record.name in node.module_name or node.module_name in record.name:
+                    if node.module_name in msg.name:
                         node.logs.append(formatted)
                         if len(node.logs) > 1000:
                             node.logs.pop(0)
-                        node.update_severity(record.levelname)
+                        node.update_severity(msg.levelname)
                         break
                 else:
                     watcher.main_logs.append(formatted)

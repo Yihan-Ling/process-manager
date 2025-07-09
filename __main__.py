@@ -30,13 +30,15 @@ def run_watch():
 if __name__ == "__main__":
     watcher = Watcher()
     _log.info("Starting the process manager...")
-    start_processes(watcher)
+    
     # log_server = start_log_server(watcher)
     start_dds_log_listener(watcher)
     
     watch_thread = Thread(target=run_watch)
     watch_thread.daemon = True 
     watch_thread.start()
+    
+    start_processes(watcher)
     
     app = Process_Manager_App(watcher=watcher)
     # app.log_server = log_server 
