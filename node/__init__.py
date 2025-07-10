@@ -59,6 +59,8 @@ class Node():
         return True
 
     def get_uptime(self) -> float:
+        if not self.is_alive():
+            return 0.0
         return time()-self.start_time
         
     def update_severity(self, level: str):
