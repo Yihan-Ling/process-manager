@@ -46,6 +46,7 @@ class Node():
         self.awaiting_state_since: float | None = time()
         self.forced_stop = False
         self.watcher = watcher
+        self.time_of_last_warning = None
         
     
     def is_alive(self) -> bool:

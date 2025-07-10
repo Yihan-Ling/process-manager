@@ -4,9 +4,11 @@ from cyclonedds.qos import Qos, Policy
 from cyclonedds.topic import Topic
 from igmr_robotics_toolkit.comms.params import ParameterClient
 from process_manager.types import LogMessage
+from process_manager.node import Watcher
+from time import time
 
 
-def start_dds_log_listener(watcher):
+def start_dds_log_listener(watcher: Watcher):
     try:
         params = ParameterClient()
         # sc = StateClient()
@@ -37,6 +39,8 @@ def start_dds_log_listener(watcher):
                         if len(node.logs) > 1000:
                             node.logs.pop(0)
                         node.update_severity(msg.levelname)
+                        if msg.levelname not in {"DEBUG", "INFO"}:
+                            node.time_of_last_warning = time()
                         break
                 else:
                     watcher.main_logs.append(formatted)

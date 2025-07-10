@@ -9,7 +9,7 @@ from process_manager.util import auto_default_logging
 
 from rich.text import Text
 
-import sys
+from time import time
 
 from process_manager.log.dds_handler import DDSLogHandler
 import logging
@@ -89,7 +89,7 @@ class Process_Manager_App(App):
         self.set_interval(self.period, self.refresh_main_logs)
     
     def initialize_process_list(self):
-        self.process_list.add_columns("Name", "Uptime", "Status", "Log Level")
+        self.process_list.add_columns("Name", "Uptime", "Status", "Log Level", "Last Warning")
         self.process_list.zebra_stripes = True
         self.process_list.cursor_type = "row"
         
@@ -103,7 +103,7 @@ class Process_Manager_App(App):
             status = "Running" if node.is_alive() else "Terminated"
             color = node.get_severity_color()
             log_level = Text(f"{node.log_severity}", style=f"{color}")
-            
+            time_to_last_warning = time()-node.time_of_last_warning if node.time_of_last_warning is not None else "NA"
            
             # node_status_label = Text("●", style=f"{color}")
             # Add row if missing
@@ -115,6 +115,7 @@ class Process_Manager_App(App):
             self.process_list.update_cell_at((row_index, 1), uptime)
             self.process_list.update_cell_at((row_index, 2), status)
             self.process_list.update_cell_at((row_index, 3), log_level)
+            self.process_list.update_cell_at((row_index, 4), time_to_last_warning)
 
     async def on_data_table_row_selected(self, message: DataTable.RowSelected) -> None:
         row_key = message.row_key
