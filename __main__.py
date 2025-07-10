@@ -1,3 +1,5 @@
+from time import sleep, time
+import igmr_robotics_toolkit.comms.auto_init
 from threading import Thread
 from process_manager.node import Watcher
 from process_manager.ui import Process_Manager_App
@@ -7,6 +9,17 @@ from process_manager.log.server import start_log_server
 from process_manager.log.dds_handler import DDSLogHandler
 import logging
 from process_manager.log.log_listener import start_dds_log_listener
+
+from cyclonedds.qos import Qos, Policy
+from cyclonedds.sub import Subscriber, DataReader
+from cyclonedds.pub import Publisher, DataWriter
+from cyclonedds.topic import Topic
+
+from igmr_robotics_toolkit.comms.history import SubscribedStateBuffer
+from igmr_robotics_toolkit.comms.params import ParameterClient, StateClient
+from igmr_robotics_toolkit.comms.history import OutOfWindowException
+
+from process_manager.types import LogMessage, Heartbeat
 
 _log = logger(__file__)
 
@@ -26,6 +39,38 @@ def run_watch():
         # TODO: make period adjustable in UI
         period=1
     )
+    
+def track_heartbeats(watcher: Watcher):
+    try:
+        params = ParameterClient()
+        # sc = StateClient()
+    except ParameterClient.InitializationTimeout:
+        print('parameter initialization timed out (is the parameter server running?)')
+        raise SystemExit(1)
+
+    with params:
+        dp = params.participant
+
+        sub = Subscriber(dp)
+        # only operate on the most recent input
+        qos = Qos(Policy.History.KeepLast(1))
+        pub = Publisher(dp)
+
+        # reader = SubscribedStateBuffer("process_manager/logs", LogMessage, domain_participant=dp)
+        topic = Topic(dp, "heart_beats", Heartbeat)
+        reader = DataReader(sub, topic, qos=Qos(Policy.History.KeepLast(100)))
+
+    while True:
+        samples = reader.take() 
+        
+        for sample in samples:
+            if not isinstance(sample, Heartbeat):
+                # print("No messages.")
+                continue
+            msg = sample
+            watcher.last_heartbeats[msg.name] = msg.timestamp    
+    
+
 
 if __name__ == "__main__":
     watcher = Watcher()
@@ -37,6 +82,10 @@ if __name__ == "__main__":
     watch_thread = Thread(target=run_watch)
     watch_thread.daemon = True 
     watch_thread.start()
+    
+    hb_thread = Thread(target=track_heartbeats, args=(watcher,))
+    hb_thread.daemon = True 
+    hb_thread.start()
     
     start_processes(watcher)
     
