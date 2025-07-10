@@ -42,6 +42,7 @@ with params:
 var = 0
 while  var<15:
     _log.info(var)
+    print(var)
     state_writer.write(Heartbeat(
         name = params.get("process_manager/d_one"),
         timestamp= time()

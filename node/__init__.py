@@ -53,7 +53,7 @@ class Node():
         if last_beat is None:
             _log.debug(f"No heartbeat ever received from {self.name}")
             return False
-        if time() - last_beat >= 5.0:
+        if time() - last_beat >= 2.0:
             # _log.warning(time() - last_beat)
             return False
         return True
@@ -99,6 +99,8 @@ class Watcher():
         with self.params:
             dp = self.params.participant
             sub = Subscriber(dp)
+            qos = Qos(Policy.History.KeepLast(1))
+            pub = Publisher(dp)
             topic = Topic(dp, "heart_beats", Heartbeat)
             self.heartbeat_reader = DataReader(sub, topic, qos=Qos(Policy.History.KeepLast(100)))
         
@@ -162,10 +164,12 @@ class Watcher():
         active, failed = [], []
         for n in self.processes:
             if n.is_alive():
-                n.relaunched = False
+                # n.relaunched = False
                 active.append(n)
             # elif time() - n.start_time > 2:
-            elif n.popen.poll() is not None:
+            # elif n.popen.poll() is not None:
+            #     failed.append(n)
+            else:
                 failed.append(n)
                 
         return active, failed
@@ -188,16 +192,16 @@ class Watcher():
                     break
                 sleep(period)
                 
-                self.update_node_status()
+                # self.update_node_status()
                 
                 (active, failed) = self._query_nodes()
                 # TODO: chnage this maybe
                 if len(failed)>=1:
                     for failed_node in failed:
                         _log.warning(f'Node {failed_node.name} has failed')
-                        if (not failed_node.relaunched) and (not failed_node.forced_stop):
+                        if (not failed_node.forced_stop) and failed_node.popen.poll() is not None:
                             self.relaunch_node(failed_node)
-                            failed_node.relaunced = True
+                            # failed_node.relaunched = True
                         
                         # failed_node.relaunched = False
                     # break
@@ -221,6 +225,7 @@ class Watcher():
         #     _log.critical(f'node {n.args} failed')
             
     def stop_all(self):
+        _log.warning("Shutting down...")
         self.stopAll = True 
         for node in self.processes:
             # if node.is_alive():
@@ -231,14 +236,17 @@ class Watcher():
                 _log.critical(f"Failed to terminate {node.name}: {e}")
                     
                     
-    def update_node_status(self):
-        heart_beats = self.heartbeat_reader.take()
-        for heart_beat in heart_beats:
-            if not isinstance(heart_beat, Heartbeat):
-                continue
-            name = heart_beat.name
-            timestamp = heart_beat.timestamp
-            self.last_heartbeats[name] = timestamp
-            _log.info(time()-timestamp)
-            if name not in self.registered_names:
-                _log.warning(f"Unregistered heartbeat detected from {name}")
+    # def update_node_status(self):
+    #     heart_beats = self.heartbeat_reader.take()
+    #     _log.info(len(heart_beats))
+    #     for heart_beat in heart_beats:
+    #         if not isinstance(heart_beat, Heartbeat):
+    #             continue
+    #         name = heart_beat.name
+    #         timestamp = heart_beat.timestamp
+    #         self.last_heartbeats[name] = timestamp
+    #         # _log.info(f"{name}: {time()-timestamp}")
+    #         _log.info(self.last_heartbeats["process_one"])
+    #         _log.info(f"now: {time()}")
+    #         if name not in self.registered_names:
+    #             _log.warning(f"Unregistered heartbeat detected from {name}")
