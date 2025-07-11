@@ -176,7 +176,6 @@ class Process_Manager_App(App):
     #     return self.process_list.get_row(row_key)
     
     def action_manual_terminate(self) -> None:
-        _log.info("hhh")
         if self.selected_node == None:
             _log.warning("No process selected")
             return
