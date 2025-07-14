@@ -1,0 +1,33 @@
+[project]
+name = "process_manager"
+version = "0.1.0"
+description = "A process manager for launching and monitoring subprocesses"
+readme = "README.md"
+requires-python = ">=3.8"
+
+authors = [{ name = "Yihan Ling", email = "carson.ling1102@outlook.com" }]
+
+dependencies = [
+    "textual",
+    "rich",
+    "pyyaml",
+    "cyclonedds"
+    "igmr_robotics_toolkit"
+
+    # logging
+    "colorful",
+    "coloredlogs",
+]
+
+[project.scripts]
+process-manager = "process_manager.__main__:main"
+
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
