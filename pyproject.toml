@@ -11,8 +11,8 @@ dependencies = [
     "textual",
     "rich",
     "pyyaml",
-    "cyclonedds"
-    "igmr_robotics_toolkit"
+    "cyclonedds",
+    "igmr_robotics_toolkit",
 
     # logging
     "colorful",
