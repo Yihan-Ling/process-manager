@@ -1,5 +1,10 @@
-process_manager:
-  d_one: process_one
-  d_two: process_two
-  d_three: process_three
+processes:
+  test_programs.dummy_processes.d_one: Process One
+  test_programs.dummy_processes.d_two: Process Two
   
+
+
+# process_manager:
+#   d_one: process_one
+#   d_two: process_two
+#   d_three: process_three

@@ -18,9 +18,9 @@ from process_manager.log.dds_handler import DDSLogHandler
 
 _log = logger(__file__)
 
-dds_handler = DDSLogHandler()
-dds_handler.setLevel(logging.DEBUG)
-_log.addHandler(dds_handler)
+# dds_handler = DDSLogHandler()
+# dds_handler.setLevel(logging.DEBUG)
+# _log.addHandler(dds_handler)
 
 try:
     _log.info("loading parameters")
@@ -44,7 +44,7 @@ var = 0
 while True:
     # _log.info("d_three running")
     state_writer.write(Heartbeat(
-        name = params.get("process_manager/d_three"),
+        name = params.get("processes/process_manager.dummy_processes.d_three"),
         timestamp= time()
     ))
     var+=1

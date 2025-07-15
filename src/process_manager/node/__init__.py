@@ -23,16 +23,18 @@ from process_manager.types import Heartbeat
 
 from process_manager.log.dds_handler import DDSLogHandler
 
+from pathlib import Path
+
 _log = logger(__file__)
 
 
-dds_handler = DDSLogHandler()
-dds_handler.setLevel(logging.DEBUG)
-_log.addHandler(dds_handler)
+# dds_handler = DDSLogHandler()
+# dds_handler.setLevel(logging.DEBUG)
+# _log.addHandler(dds_handler)
 class Node():
-    def __init__(self, module_name: str, popen: subprocess.Popen, cmd_args: list[str], pc: ParameterClient, watcher: Watcher):
-        self.module_name = module_name.rsplit(".", 1)[-1]
-        self.name = pc.get(f"process_manager/{self.module_name}")
+    def __init__(self, name: str, module_name: str, popen: subprocess.Popen, cmd_args: list[str], watcher: Watcher):
+        self.module_name = module_name
+        self.name = name
         self.popen = popen
         self.logs = []
         self.recent_severities: list[str] = []
@@ -42,12 +44,10 @@ class Node():
         self.launched_times = 0
         self.relaunched = False
         self.log_severity = "DEBUG" # Default to start at DEBUG
-        self.params = pc
         self.awaiting_state_since: float | None = time()
         self.forced_stop = False
         self.watcher = watcher
         self.time_of_last_warning = None
-        
     
     def is_alive(self) -> bool:
         last_beat = self.watcher.last_heartbeats.get(self.name)
@@ -117,11 +117,13 @@ class Watcher():
         #     self.state_reader = SubscribedStateBuffer(params.get('process_manager/d_one'), ProcessState, domain_participant=dp)
         
         
-    def launch(self, module: str, *cmd_args: Iterable[object], **cmd_kwargs: Mapping[str, object]) -> subprocess.Popen:
+    def launch(self, name: str, module: str, *cmd_args: Iterable[object], **cmd_kwargs: Mapping[str, object]) -> subprocess.Popen:
         arg = [sys.executable, '-u', '-m', module] + \
             [str(o) for o in cmd_args] + \
             [f"--{k.replace('_', '-')}={v}" for (k, v) in cmd_kwargs.items()]
-        node = Node(module_name=module, 
+        node = Node(
+            name = name,
+            module_name=module, 
             popen=
             subprocess.Popen(
                 arg,
@@ -131,7 +133,6 @@ class Watcher():
                 bufsize=1
             ),
             cmd_args=arg,
-            pc = self.params, 
             watcher=self
         )
         self.processes.append(node)
@@ -238,7 +239,23 @@ class Watcher():
             except Exception as e:
                 _log.critical(f"Failed to terminate {node.name}: {e}")
                     
-                    
+    def launch_script(self, path: Path, name: str):
+        proc = subprocess.Popen(
+            [sys.executable, "-u", str(path)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1
+        )
+        node = Node(
+            name=name,
+            module_name=str(path),  
+            popen=proc,
+            cmd_args=[str(path)],
+            watcher=self
+        )
+        self.processes.append(node)
+        self.registered_names.append(name)
     # def update_node_status(self):
     #     heart_beats = self.heartbeat_reader.take()
     #     _log.info(len(heart_beats))

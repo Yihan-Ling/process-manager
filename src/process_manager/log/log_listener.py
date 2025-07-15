@@ -34,7 +34,7 @@ def start_dds_log_listener(watcher: Watcher):
 
                 # Try to route to the correct node
                 for node in watcher.processes:
-                    if node.module_name in msg.name:
+                    if node.module_name in msg.name or msg.name in node.module_name or msg.name.endswith(node.module_name.split('.')[-1]):
                         node.logs.append(formatted)
                         if len(node.logs) > 1000:
                             node.logs.pop(0)

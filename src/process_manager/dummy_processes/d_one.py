@@ -19,9 +19,9 @@ from process_manager.log.dds_handler import DDSLogHandler
 _log = logger(__file__)
 
 
-dds_handler = DDSLogHandler()
-dds_handler.setLevel(logging.DEBUG)
-_log.addHandler(dds_handler)
+# dds_handler = DDSLogHandler()
+# dds_handler.setLevel(logging.DEBUG)
+# _log.addHandler(dds_handler)
 
 
 try:
@@ -44,7 +44,7 @@ while  var<15:
     _log.info(var)
     print(var)
     state_writer.write(Heartbeat(
-        name = params.get("process_manager/d_one"),
+        name = params.get("processes/process_manager.dummy_processes.d_one"),
         timestamp= time()
     ))
     var += 1

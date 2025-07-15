@@ -16,9 +16,9 @@ import logging
 
 _log = logger(__file__)
 
-dds_handler = DDSLogHandler()
-dds_handler.setLevel(logging.DEBUG)
-_log.addHandler(dds_handler)
+# dds_handler = DDSLogHandler()
+# dds_handler.setLevel(logging.DEBUG)
+# _log.addHandler(dds_handler)
 # class ProcessListItem(ListItem):
 #     def __init__(self, node: Node):
 #         self.node = node

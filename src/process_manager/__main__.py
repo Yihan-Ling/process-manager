@@ -21,18 +21,39 @@ from igmr_robotics_toolkit.comms.history import OutOfWindowException
 
 from process_manager.types import LogMessage, Heartbeat
 
+import sys
+from pathlib import Path
+import yaml
+import subprocess
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 _log = logger(__file__)
 
-dds_handler = DDSLogHandler()
-dds_handler.setLevel(logging.DEBUG)
-_log.addHandler(dds_handler)
+# dds_handler = DDSLogHandler()
+# dds_handler.setLevel(logging.DEBUG)
+# _log.addHandler(dds_handler)
 
 
-def start_processes(watcher:Watcher):
-    
-    watcher.launch('process_manager.dummy_processes.d_one')
-    watcher.launch('process_manager.dummy_processes.d_two')
-    watcher.launch('process_manager.dummy_processes.d_three')
+def start_processes(watcher: Watcher):
+    # Get project root and config path
+    project_root = Path(__file__).resolve().parents[2]
+    config_path = Path(__file__).parent / "config.yaml"
+
+    if not config_path.exists():
+        _log.error(f"Config file not found at {config_path}")
+        return
+
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+
+    processes = config.get("processes", {})
+    if not processes:
+        _log.warning("No processes defined in config.yaml")
+        return
+
+    for module, name in processes.items():
+        _log.info(f"Launching module: {name} ({module})")
+        watcher.launch(name=name, module=module)
 
 def run_watch(watcher: Watcher):
     watcher.watch(
