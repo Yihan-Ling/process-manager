@@ -11,7 +11,7 @@ from time import time
 def start_dds_log_listener(watcher: Watcher):
     try:
         params = ParameterClient()
-        # sc = StateClient()
+
     except ParameterClient.InitializationTimeout:
         print('parameter initialization timed out (is the parameter server running?)')
         raise SystemExit(1)
@@ -27,12 +27,10 @@ def start_dds_log_listener(watcher: Watcher):
             for msg in msgs:
                 formatted = f"{msg.name}  [{msg.levelname}]: {msg.message}"
 
-                # Store in global log buffer
                 watcher.logs.append(formatted)
                 if len(watcher.logs) > 1000:
                     watcher.logs.pop(0)
 
-                # Try to route to the correct node
                 for node in watcher.processes:
                     if node.module_name in msg.name or msg.name in node.module_name or msg.name.endswith(node.module_name.split('.')[-1]):
                         node.logs.append(formatted)

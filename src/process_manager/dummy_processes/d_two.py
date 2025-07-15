@@ -1,51 +1,19 @@
 from time import sleep, time
 from process_manager.log import logger
 from process_manager.util import auto_default_logging
-import logging.handlers
 import igmr_robotics_toolkit.comms.auto_init    # Has to import before CycloneDDS
 
-from cyclonedds.sub import Subscriber, DataReader
-from cyclonedds.qos import Qos, Policy
-from cyclonedds.pub import Publisher, DataWriter
-from cyclonedds.topic import Topic
+from process_manager.util import write_heartbeat, create_writer
 
-from igmr_robotics_toolkit.comms.history import SubscribedStateBuffer
-from igmr_robotics_toolkit.comms.params import ParameterClient, StateClient
-
-from process_manager.types import Heartbeat
 import random
-
-from process_manager.log.dds_handler import DDSLogHandler
 
 _log = logger(__file__)
 
-# dds_handler = DDSLogHandler()
-# dds_handler.setLevel(logging.DEBUG)
-# _log.addHandler(dds_handler)
-
-try:
-    _log.info("loading parameters")
-    params = ParameterClient()
-    sc = StateClient()
-except ParameterClient.InitializationTimeout:
-    _log.error('parameter initialization timed out (is the parameter server running?)')
-    raise SystemExit(1)
-
-with params:
-    dp = params.participant
-
-    sub = Subscriber(dp)
-    # only operate on the most recent input
-    qos = Qos(Policy.History.KeepLast(1))
-    pub = Publisher(dp)
-    state_writer = DataWriter(pub, Topic(dp, "heart_beats", Heartbeat))
+state_writer = create_writer(_log)
 
 while random.random()>0.1:
     _log.info("d_two run")
-    state_writer.write(Heartbeat(
-        name = params.get("processes/process_manager.dummy_processes.d_two"),
-        timestamp= time()
-    ))
+    write_heartbeat(writer=state_writer, module=__spec__.name)
     sleep(2)
 
 _log.warning("d_two exit")

@@ -22,7 +22,6 @@ def default_logging():
     coloredlogs.install(level=logging.DEBUG, logger=logging.getLogger('node'))
 
 def write_heartbeat(writer: DataWriter, module: str = None):
-    """Send a heartbeat using a DDS writer and a resolved module name from parameters."""
     params = ParameterClient()
     with params:
         resolved_name = params.get(f"processes/{module}")

@@ -19,11 +19,11 @@ def logger(target: Path) -> logging.Logger:
 def setup_logging():
     # Set up the root logger
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)  # Set the desired global log level
+    logger.setLevel(logging.DEBUG)
 
     # Set up the DDSLogHandler
     dds_handler = DDSLogHandler()
-    dds_handler.setLevel(logging.DEBUG)  # Set the level for this handler
-    logger.addHandler(dds_handler)  # Add the handler to the root logger
+    dds_handler.setLevel(logging.DEBUG)  
+    logger.addHandler(dds_handler)  
 
 setup_logging()

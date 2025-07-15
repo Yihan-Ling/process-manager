@@ -1,11 +1,9 @@
 from __future__ import annotations
 import igmr_robotics_toolkit.comms.auto_init
-from typing import Iterable, Mapping, Tuple
+from typing import Iterable, Mapping
 import sys
 import subprocess
 from time import time, sleep
-from threading import Thread
-import logging.handlers
 
 from process_manager.log import logger
 from process_manager.util import auto_default_logging
@@ -15,22 +13,14 @@ from cyclonedds.sub import Subscriber, DataReader
 from cyclonedds.pub import Publisher, DataWriter
 from cyclonedds.topic import Topic
 
-from igmr_robotics_toolkit.comms.history import SubscribedStateBuffer
-from igmr_robotics_toolkit.comms.params import ParameterClient, StateClient
-from igmr_robotics_toolkit.comms.history import OutOfWindowException
+from igmr_robotics_toolkit.comms.params import ParameterClient
 
 from process_manager.types import Heartbeat
-
-from process_manager.log.dds_handler import DDSLogHandler
 
 from pathlib import Path
 
 _log = logger(__file__)
 
-
-# dds_handler = DDSLogHandler()
-# dds_handler.setLevel(logging.DEBUG)
-# _log.addHandler(dds_handler)
 class Node():
     def __init__(self, name: str, module_name: str, popen: subprocess.Popen, cmd_args: list[str], watcher: Watcher):
         self.module_name = module_name
@@ -42,9 +32,7 @@ class Node():
         self.start_time = time()
         self.end_time = None
         self.launched_times = 0
-        self.relaunched = False
         self.log_severity = "DEBUG" # Default to start at DEBUG
-        self.awaiting_state_since: float | None = time()
         self.forced_stop = False
         self.watcher = watcher
         self.time_of_last_warning = None
@@ -55,7 +43,6 @@ class Node():
             _log.debug(f"No heartbeat ever received from {self.name}")
             return False
         if time() - last_beat >= 2.0:
-            # _log.warning(time() - last_beat)
             return False
         return True
 
@@ -102,19 +89,8 @@ class Watcher():
         with self.params:
             dp = self.params.participant
             sub = Subscriber(dp)
-            qos = Qos(Policy.History.KeepLast(1))
-            pub = Publisher(dp)
             topic = Topic(dp, "heart_beats", Heartbeat)
             self.heartbeat_reader = DataReader(sub, topic, qos=Qos(Policy.History.KeepLast(100)))
-        
-        # with params:
-        #     dp = params.participant
-
-        #     sub = Subscriber(dp)
-        #     # only operate on the most recent input
-        #     qos = Qos(Policy.History.KeepLast(1))
-        #     # pub = Publisher(dp)
-        #     self.state_reader = SubscribedStateBuffer(params.get('process_manager/d_one'), ProcessState, domain_participant=dp)
         
         
     def launch(self, name: str, module: str, *cmd_args: Iterable[object], **cmd_kwargs: Mapping[str, object]) -> subprocess.Popen:
@@ -137,8 +113,6 @@ class Watcher():
         )
         self.processes.append(node)
         self.registered_names.append(node.name)
-        
-        # Thread(target=self._read_node_output, args=(node,), daemon=True).start()
 
 
     def relaunch_node(self, failed_node: Node):
@@ -146,7 +120,6 @@ class Watcher():
             return
         _log.info(f"Relaunching node: {failed_node.name}")
         failed_node.start_time = time()
-        failed_node.awaiting_state_since = time()
         new_popen = subprocess.Popen(
             failed_node.cmd_args,
             stdout=subprocess.PIPE,
@@ -156,37 +129,18 @@ class Watcher():
         )
         failed_node.popen = new_popen
         failed_node.launched_times += 1
-        # failed_node.relaunched = True
-        # If restart as a new node
-        # new_node = Node(module_name=f'{failed_node.module_name}', popen=new_popen, cmd_args=failed_node.cmd_args, pc=failed_node.params)
-        # new_node.launched_times = failed_node.launched_times + 1
-        # # self.processes.remove(failed_node)
-        # self.processes.append(new_node)
-        # Thread(target=self._read_node_output, args=(new_node,), daemon=True).start()
+        
 
     def _query_nodes(self) -> tuple[list[Node], list[Node]]:
         active, failed = [], []
         for n in self.processes:
             if n.is_alive():
-                # n.relaunched = False
                 active.append(n)
-            # elif time() - n.start_time > 2:
-            # elif n.popen.poll() is not None:
-            #     failed.append(n)
             else:
                 failed.append(n)
                 
         return active, failed
-
-    # def _read_node_output(self, node: Node):
-    #     for line in node.popen.stdout:
-    #         line = line.strip()
-    #         node.logs.append(line)
-    #         self.terminal_prints.append(line)
-    #         if len(node.logs) > 100:
-    #             node.logs.pop(0)
-    #         if len(self.terminal_prints) > 100:
-    #             self.terminal_prints.pop(0)
+    
     
     def watch(self, period=1):
         
@@ -196,43 +150,21 @@ class Watcher():
                     break
                 sleep(period)
                 
-                # self.update_node_status()
-                
                 (active, failed) = self._query_nodes()
-                # TODO: chnage this maybe
                 if len(failed)>=1:
                     for failed_node in failed:
                         _log.warning(f'Node {failed_node.name} has failed')
                         if (not failed_node.forced_stop) and failed_node.popen.poll() is not None:
                             self.relaunch_node(failed_node)
-                            # failed_node.relaunched = True
-                        
-                        # failed_node.relaunched = False
-                    # break
 
         except KeyboardInterrupt:
             _log.warning('initiating shutdown due to interrupt')
 
-        # for n in self.active:
-        #     if platform.system() == 'Windows':
-        #         n.send_signal(signal.CTRL_C_EVENT)
-        #     else:
-        #         n.send_signal(signal.SIGINT)
-
-        # for n in self.processes:
-        #     try:
-        #         n.popen.wait()
-        #     except KeyboardInterrupt:
-        #         pass
-
-        # for n in self.failed:
-        #     _log.critical(f'node {n.args} failed')
             
     def stop_all(self):
         _log.warning("Shutting down...")
         self.stopAll = True 
         for node in self.processes:
-            # if node.is_alive():
             try:
                 node.popen.terminate()
                 node.popen.wait(timeout=5)
@@ -256,17 +188,4 @@ class Watcher():
         )
         self.processes.append(node)
         self.registered_names.append(name)
-    # def update_node_status(self):
-    #     heart_beats = self.heartbeat_reader.take()
-    #     _log.info(len(heart_beats))
-    #     for heart_beat in heart_beats:
-    #         if not isinstance(heart_beat, Heartbeat):
-    #             continue
-    #         name = heart_beat.name
-    #         timestamp = heart_beat.timestamp
-    #         self.last_heartbeats[name] = timestamp
-    #         # _log.info(f"{name}: {time()-timestamp}")
-    #         _log.info(self.last_heartbeats["process_one"])
-    #         _log.info(f"now: {time()}")
-    #         if name not in self.registered_names:
-    #             _log.warning(f"Unregistered heartbeat detected from {name}")
+    

@@ -1,9 +1,5 @@
-ProcessListItem{
-    
-}
-
 #process_list{
-    width: 30%;
+    width: 40%;
 }
 
 #list_item{
@@ -13,10 +9,6 @@ ProcessListItem{
 #node_name{
     text-align: left;
     width: 93%;
-}
-
-#node_status{
-    
 }
 
 #right_panel{

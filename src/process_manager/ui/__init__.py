@@ -1,39 +1,16 @@
-from process_manager.node import Watcher, Node
-
-from textual.app import App, ComposeResult
-from textual.widgets import Header, ListView, ListItem, Label, DataTable, Log, Footer
-from textual.reactive import reactive
-from textual.containers import Horizontal, Vertical
+from process_manager.node import Watcher
 from process_manager.log import logger
 from process_manager.util import auto_default_logging
 
+from textual.app import App, ComposeResult
+from textual.widgets import Header, Label, DataTable, Log, Footer
+from textual.reactive import reactive
+from textual.containers import Horizontal, Vertical
 from rich.text import Text
 
 from time import time
 
-from process_manager.log.dds_handler import DDSLogHandler
-import logging
-
 _log = logger(__file__)
-
-# dds_handler = DDSLogHandler()
-# dds_handler.setLevel(logging.DEBUG)
-# _log.addHandler(dds_handler)
-# class ProcessListItem(ListItem):
-#     def __init__(self, node: Node):
-#         self.node = node
-#         color = node.get_severity_color()
-#         node_status_dot = Label("●", id="node_status")
-#         node_status_dot.styles.color = color
-        
-#         super().__init__(
-#             Horizontal(
-#                 Label(node.name, id="node_name"),
-#                 node_status_dot,
-#                 id="list_item"
-#             )
-#         )
-
     
 class Process_Manager_App(App):
     CSS_PATH = "manager.tcss"
@@ -49,19 +26,16 @@ class Process_Manager_App(App):
         self.process_list = DataTable(id="process_list")
         self.detail_panel = Log(id="detail_panel")
         self.main_log = Log(id="main_log")
-        # self.stats = DataTable(id="table")
         self.detail_label = Label("Select a process to see detail", id="detail_label")
         self.main_label = Label("Process Manager Logs", id="main_label")
         self.selected_index = reactive(0)
         self.period = 1
         self.selected_node = None
         self.show_all_logs = False
-        # self.log_server = log_server
     
     def exit(self) -> None:
         _log.info("Shutting down UI: stopping processes and log server...")
         self.watcher.stop_all()
-            
         super().exit() 
         
     
@@ -80,9 +54,6 @@ class Process_Manager_App(App):
     def on_mount(self) -> None:
         self.title = "Process Manager"
         self.initialize_process_list()
-        # self.stats.add_columns("Name", "Uptime", "Status", "Log Level")
-        # self.stats.zebra_stripes = True
-        # self.stats.cursor_type = "row"
         
         self.set_interval(self.period, self.refresh_process_list)    
         self.set_interval(self.period, lambda: self.call_later(self.refresh_selected_logs))
@@ -104,9 +75,7 @@ class Process_Manager_App(App):
             color = node.get_severity_color()
             log_level = Text(f"{node.log_severity}", style=f"{color}")
             time_to_last_warning = time()-node.time_of_last_warning if node.time_of_last_warning is not None else "NA"
-           
-            # node_status_label = Text("●", style=f"{color}")
-            # Add row if missing
+
             if row_index >= len(existing_keys):
                 self.process_list.add_row(name, uptime, status, log_level)
                 continue
@@ -124,9 +93,8 @@ class Process_Manager_App(App):
         if row is None or len(row) == 0:
             return
 
-        selected_name = row[0]  # First column is the node name
+        selected_name = row[0]
 
-        # Match node by name
         for node in self.watcher.processes:
             if node.name == selected_name:
                 self.selected_node = node
@@ -150,30 +118,11 @@ class Process_Manager_App(App):
         for line in self.watcher.main_logs:
             self.main_log.write_line(line)
             
-    # def refresh_stats(self):
-
-    #     self.stats.clear()
-
-    #     for node in self.watcher.processes:
-    #         name = node.name
-    #         uptime = f"{node.get_uptime():.1f} s"
-    #         status = "Running" if node.is_alive() else "Terminated"
-    #         log_level = node.log_severity
-
-    #         self.stats.add_row(name, uptime, status, log_level)
-
-    #     self.stats.action_scroll_bottom()
-        
             
     def action_toggle_logs(self) -> None:
         self.show_all_logs = not self.show_all_logs
         self.refresh_selected_logs()
     
-    
-    # def get_selected_row(self) -> list:
-    #     row_index = self.process_list.cursor_row
-    #     row_key = self.process_list.get_row_key(row_index)
-    #     return self.process_list.get_row(row_key)
     
     def action_manual_terminate(self) -> None:
         if self.selected_node == None:
