@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [project.scripts]
-process-manager = "process_manager.__main__:main"
+process_manager = "process_manager.__main__:main"
 
 [build-system]
 requires = ["setuptools>=64", "wheel"]

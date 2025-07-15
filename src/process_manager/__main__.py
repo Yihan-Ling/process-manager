@@ -34,7 +34,7 @@ def start_processes(watcher:Watcher):
     watcher.launch('process_manager.dummy_processes.d_two')
     watcher.launch('process_manager.dummy_processes.d_three')
 
-def run_watch():
+def run_watch(watcher: Watcher):
     watcher.watch(
         # TODO: make period adjustable in UI
         period=1
@@ -70,16 +70,14 @@ def track_heartbeats(watcher: Watcher):
             msg = sample
             watcher.last_heartbeats[msg.name] = msg.timestamp    
     
-
-
-if __name__ == "__main__":
+def main():
     watcher = Watcher()
     _log.info("Starting the process manager...")
     
     # log_server = start_log_server(watcher)
     start_dds_log_listener(watcher)
     
-    watch_thread = Thread(target=run_watch)
+    watch_thread = Thread(target=run_watch, args=(watcher,))
     watch_thread.daemon = True 
     watch_thread.start()
     
@@ -92,3 +90,6 @@ if __name__ == "__main__":
     app = Process_Manager_App(watcher=watcher)
     # app.log_server = log_server 
     app.run()
+
+if __name__ == "__main__":
+    main()
