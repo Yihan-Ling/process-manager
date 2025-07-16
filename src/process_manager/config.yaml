@@ -1,5 +1,5 @@
 processes:
-# full_module_path: User-defined name to be displayed in process manager
+# <full.module.path>: <Display Name>
   test_programs.dummy_processes.d_one: Process One
   test_programs.dummy_processes.d_two: Process Two
   test_programs.dummy_processes.d_three: Process Three
