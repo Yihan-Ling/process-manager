@@ -1,7 +1,7 @@
 # process-manager <!-- omit in toc -->
 A modular Python package for launching, monitoring, and logging multiple processes in a centralized Text-based User Interface (TUI) built with [**textual**](https://textual.textualize.io/). 
 
-![Process Manager View](assets\process_manager.png "Process Manager")
+![Process Manager UI](assets/process_manager.png "Process Manager UI")
 
 ## Table of Contents <!-- omit in toc -->
 - [Introduction](#introduction)
