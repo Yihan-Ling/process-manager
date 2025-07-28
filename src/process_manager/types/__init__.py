@@ -9,6 +9,6 @@ class Heartbeat(IdlStruct):
 @dataclass
 class LogMessage(IdlStruct):
     name: str
-    levelname: str
+    levelno: int
     message: str
     timestamp: types.float64

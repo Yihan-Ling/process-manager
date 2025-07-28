@@ -1,11 +1,14 @@
 from threading import Thread
+import logging
+from time import time
+
 from cyclonedds.sub import Subscriber, DataReader
 from cyclonedds.qos import Qos, Policy
 from cyclonedds.topic import Topic
 from igmr_robotics_toolkit.comms.params import ParameterClient
 from process_manager.types import LogMessage
 from process_manager.node import Watcher
-from time import time
+
 
 
 def start_dds_log_listener(watcher: Watcher):
@@ -25,7 +28,7 @@ def start_dds_log_listener(watcher: Watcher):
         while True:
             msgs = reader.take()
             for msg in msgs:
-                formatted = f"{msg.name}  [{msg.levelname}]: {msg.message}"
+                formatted = f"{msg.name}  [{logging.getLevelName(msg.levelno)}]: {msg.message}"
 
                 watcher.logs.append(formatted)
                 if len(watcher.logs) > 1000:

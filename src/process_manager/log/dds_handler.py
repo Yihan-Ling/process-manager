@@ -18,7 +18,7 @@ class DDSLogHandler(logging.Handler):
         try:
             msg = LogMessage(
                 name=record.name,
-                levelname=record.levelname,
+                levelno=record.levelno,
                 message=record.getMessage(),
                 timestamp=time()
             )
