@@ -6,11 +6,13 @@ A modular Python package for launching, monitoring, and logging multiple process
 ## Table of Contents <!-- omit in toc -->
 - [Introduction](#introduction)
 - [Installation](#installation)
-- [Usage](#usage)
+- [Setup](#setup)
   - [config.yaml](#configyaml)
   - [Heartbeat](#heartbeat)
   - [Log](#log)
   - [Start Program](#start-program)
+- [Usage](#usage)
+  - [Modes](#modes)
 
 ## Introduction
 `process-manager` automatically launches the processes (nodes) defined in the `config.yaml` file automatically and countinuously monitors their status and logs. The status of a node is determined by whether a *Heartbeat* is detected from that node. All logging and *Heartbeat* communications are sent through [**Cyclone DDS**](https://cyclonedds.io/), a data sharing technology, which is set up by `igmr-robotics-toolkit`. This allows communication across diferent programs and devices with proper setup. The interactive UI is built with `textual` to visualize the data.
@@ -24,7 +26,7 @@ pip install -e .
 ```
 This installs the package as `process_manager`
 
-## Usage
+## Setup
 Assume your directory structure looks like this: 
 ```
 root_directory/
@@ -93,3 +95,15 @@ In a seperate terminal, run
 process_manager
 ```
 to start the process manager
+
+## Usage
+### Modes
+There are several keybinds linked to specific actions (which are all displayed on the footer of the UI):
+
+`a`: Toggle the top right panel to display between **Selected** and **All** program logs. Default mode is Selected.
+
+`t`: Manually terminates the selected program, will not cause the program to automatically relaunch on shutdown (which is the default).
+
+`r`: Manually resterts the program. 
+
+`q`: Quits the process manager
